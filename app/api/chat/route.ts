@@ -23,7 +23,7 @@ async function callAI(messages: Message[], system: string, stream = false, gemin
       headers: {
         Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://nexus-app-inky-beta.vercel.app',
+        'HTTP-Referer': 'https://luna-app.vercel.app',
       },
       body: JSON.stringify({
         model: 'google/gemini-2.0-flash-001',
@@ -177,7 +177,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ── STREAMING CHAT ─────────────────────────────────────────────────────────
-  const system = `Você é Nexus, assistente pessoal de ${userName || 'usuário'}. Responda APENAS em ${lang === 'en' ? 'English' : lang === 'es' ? 'español' : 'português brasileiro'}. Data: ${now}\n${voiceRule}\n${calInfo}`
+  const system = `Você é LUNA, assistente pessoal de ${userName || 'usuário'}. Responda APENAS em ${lang === 'en' ? 'English' : lang === 'es' ? 'español' : 'português brasileiro'}. Data: ${now}\n${voiceRule}\n${calInfo}`
 
   // Se tem TTS ativo, não streamamos (precisamos do texto completo para Azure TTS)
   if (ttsEnabled && voiceMode) {
