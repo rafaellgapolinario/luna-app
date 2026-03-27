@@ -20,9 +20,7 @@ export default function LoginPage() {
   const [introName, setIntroName] = useState('')
 
   useEffect(() => {
-    if (accessToken) {
-      router.replace('/app')
-    }
+    if (accessToken) router.replace('/app')
   }, [accessToken, router])
 
   useEffect(() => {
@@ -61,34 +59,80 @@ export default function LoginPage() {
   return (
     <>
       {showIntro && <LunaIntro onDone={() => { setShowIntro(false); router.replace('/app') }} userName={introName} />}
-      <div style={{ display:'flex', height:'100dvh', background:'var(--bg)' }}>
-        <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:48, position:'relative', overflow:'hidden' }}>
-          <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 60% 50% at 50% 30%,rgba(167,139,250,0.18) 0%,transparent 70%)', pointerEvents:'none' }} />
-          <div style={{ marginBottom:20, width:100, height:100, borderRadius:'50%', overflow:'hidden', boxShadow:'0 0 60px rgba(167,139,250,0.4)' }}>
-            <img src="/luna-logo.png" alt="LUNA" width={100} height={100} style={{ objectFit:'cover' }} />
+
+      <div style={{ minHeight: '100dvh', background: '#0a0a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', fontFamily: "'DM Sans', sans-serif" }}>
+
+        {/* Glow background */}
+        <div style={{ position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)', width: 800, height: 600, background: 'radial-gradient(ellipse, rgba(124,109,250,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '10%', right: '15%', width: 300, height: 300, background: 'radial-gradient(ellipse, rgba(96,165,250,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+        {/* Card central */}
+        <div style={{
+          width: '100%', maxWidth: 420, margin: '0 16px',
+          background: 'rgba(19,19,26,0.85)', backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(124,109,250,0.2)',
+          borderRadius: 24, padding: '48px 40px',
+          boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 40px 80px rgba(0,0,0,0.5)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0,
+        }}>
+
+          {/* Logo */}
+          <div style={{
+            width: 96, height: 96, borderRadius: '50%', overflow: 'hidden', marginBottom: 24,
+            boxShadow: '0 0 40px rgba(124,109,250,0.5), 0 0 80px rgba(124,109,250,0.2)',
+            border: '2px solid rgba(124,109,250,0.4)',
+          }}>
+            <img src="/luna-logo.png" alt="LUNA" width={96} height={96} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
           </div>
-          <div style={{ fontFamily:'Syne', fontSize:52, fontWeight:800, letterSpacing:-2, marginBottom:8, background:'linear-gradient(135deg,#c084fc,#818cf8,#60a5fa)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>LUNA</div>
-          <div style={{ fontSize:16, color:'var(--text2)', maxWidth:360, textAlign:'center', lineHeight:1.6 }}>{t(lang,'login_tagline')}</div>
-        </div>
-        <div style={{ width:420, flexShrink:0, background:'var(--bg2)', borderLeft:'1px solid var(--border)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'48px 40px' }}>
-          <div style={{ textAlign:'center', marginBottom:32 }}>
-            <div style={{ margin:'0 auto 16px', width:60, height:60, borderRadius:'50%', overflow:'hidden', boxShadow:'0 0 30px rgba(167,139,250,0.35)' }}>
-              <img src="/luna-logo.png" alt="LUNA" width={60} height={60} style={{ objectFit:'cover' }} />
-            </div>
-            <div style={{ fontFamily:'Syne', fontSize:28, fontWeight:800, letterSpacing:-0.5, marginBottom:6, background:'linear-gradient(135deg,#c084fc,#818cf8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>LUNA</div>
-            <div style={{ fontSize:14, color:'var(--text2)' }}>{t(lang,'login_welcome')}</div>
+
+          {/* Nome */}
+          <div style={{
+            fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 36,
+            letterSpacing: -1.5, marginBottom: 8,
+            background: 'linear-gradient(135deg, #c084fc, #818cf8, #60a5fa)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          }}>
+            LUNA
           </div>
-          <button className="google-btn" onClick={startLogin}>
+
+          {/* Tagline */}
+          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', textAlign: 'center', lineHeight: 1.6, marginBottom: 40, maxWidth: 300 }}>
+            Seu assistente inteligente de tarefas. IA + Agenda + WhatsApp integrados.
+          </div>
+
+          {/* Divider */}
+          <div style={{ width: '100%', height: 1, background: 'rgba(255,255,255,0.07)', marginBottom: 32 }} />
+
+          {/* Titulo login */}
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 16, letterSpacing: 0.3 }}>
+            Entre com sua conta Google
+          </div>
+
+          {/* Botao Google */}
+          <button
+            onClick={startLogin}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 12, padding: '14px 20px', cursor: 'pointer',
+              fontFamily: 'Syne, sans-serif', fontWeight: 600, fontSize: 15, color: '#f0f0f8',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(124,109,250,0.15)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(124,109,250,0.4)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.12)'; }}
+          >
             <svg width="20" height="20" viewBox="0 0 48 48">
               <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
               <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
               <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
               <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
             </svg>
-            {t(lang,'login_btn')}
+            Entrar com Google
           </button>
-          <div style={{ fontSize:11, color:'var(--text3)', textAlign:'center', marginTop:14, lineHeight:1.7 }}>
-            {t(lang,'login_terms').split('\n').map((line,i) => <div key={i}>{line}</div>)}
+
+          {/* Nota rodape */}
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', textAlign: 'center', marginTop: 20, lineHeight: 1.7 }}>
+            Ao entrar, voce autoriza o LUNA a acessar<br />sua agenda Google. Seus dados sao protegidos.
           </div>
         </div>
       </div>
