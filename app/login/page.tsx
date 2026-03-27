@@ -8,7 +8,6 @@ import LunaIntro from '@/components/LunaIntro'
 
 const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''
 const SCOPES    = 'https://www.googleapis.com/auth/calendar openid email profile'
-const INTRO_KEY = 'luna_intro_shown'
 
 declare global { interface Window { google: any } }
 
@@ -22,7 +21,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (accessToken) {
-            setShowIntro(true)
+      router.replace('/app')
     }
   }, [accessToken, router])
 
@@ -53,7 +52,7 @@ export default function LoginPage() {
           setAuth(resp.access_token, profile, authData.id)
           setIntroName(profile.given_name || profile.name || '')
           showToast(t(lang, 'logged_in'))
-                        setShowIntro(true)
+          setShowIntro(true)
         } catch { showToast(t(lang, 'err_connect')) }
       },
     }).requestAccessToken({ prompt: 'consent' })
@@ -61,7 +60,7 @@ export default function LoginPage() {
 
   return (
     <>
-      {showIntro && <LunaIntro onDone={() => { setShowIntro(false); router.replace('/') }} userName={introName} />}
+      {showIntro && <LunaIntro onDone={() => { setShowIntro(false); router.replace('/app') }} userName={introName} />}
       <div style={{ display:'flex', height:'100dvh', background:'var(--bg)' }}>
         <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:48, position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 60% 50% at 50% 30%,rgba(167,139,250,0.18) 0%,transparent 70%)', pointerEvents:'none' }} />
@@ -70,21 +69,6 @@ export default function LoginPage() {
           </div>
           <div style={{ fontFamily:'Syne', fontSize:52, fontWeight:800, letterSpacing:-2, marginBottom:8, background:'linear-gradient(135deg,#c084fc,#818cf8,#60a5fa)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>LUNA</div>
           <div style={{ fontSize:16, color:'var(--text2)', maxWidth:360, textAlign:'center', lineHeight:1.6 }}>{t(lang,'login_tagline')}</div>
-          <div style={{ marginTop:40, width:'100%', maxWidth:400 }}>
-            {[
-              { icon:'ð', tk:'feat1_title' as const, sk:'feat1_sub' as const, bg:'rgba(124,109,250,0.15)' },
-              { icon:'ð¤¬', tk:'feat2_title' as const, sk:'feat2_sub' as const, bg:'rgba(124,109,250,0.15)' },
-              { icon:'ð¸', tk:'feat3_title' as const, sk:'feat3_sub' as const, bg:'rgba(37,211,102,0.12)' },
-            ].map(({ icon, tk, sk, bg }) => (
-              <div key={tk} style={{ display:'flex', alignItems:'flex-start', gap:14, padding:'14px 0', borderBottom:'1px solid var(--border)' }}>
-                <div style={{ width:36, height:36, borderRadius:10, background:bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, flexShrink:0 }}>{icon}</div>
-                <div>
-                  <div style={{ fontSize:14, fontWeight:500 }}>{t(lang,tk)}</div>
-                  <div style={{ fontSize:12, color:'var(--text2)', marginTop:2 }}>{t(lang,sk)}</div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
         <div style={{ width:420, flexShrink:0, background:'var(--bg2)', borderLeft:'1px solid var(--border)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'48px 40px' }}>
           <div style={{ textAlign:'center', marginBottom:32 }}>
