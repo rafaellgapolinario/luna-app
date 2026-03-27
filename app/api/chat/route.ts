@@ -1,21 +1,21 @@
 import { NextRequest } from 'next/server'
 
-export const runtime = 'edge'
+export const runtime = 'nodejs'
 
 interface Message { role: 'user' | 'assistant'; content: string }
 
-// ââ Intent detection ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Intent detection Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function detectIntent(text: string) {
   const t = text.toLowerCase()
-  if (/(anota|registra|salva|guarda|cria.*(nota|tarefa|lembrete)|me lembra|nÃ£o esquecer|preciso fazer|tenho que)/i.test(t)) return 'save_note'
-  if (/(cria.*evento|coloca na agenda|quero agendar|marca.*(reuniÃ£o|consulta|compromisso)|adiciona.*calendÃ¡rio|agenda.*para)/i.test(t)) return 'create_event'
-  if (/(academia|exercÃ­cio|treino|meditar|beber Ã¡gua|dormir cedo|hÃ¡bito|rotina diÃ¡ria)/i.test(t)) return 'save_habit'
-  if (/(gastei|comprei|paguei|recebi|salÃ¡rio|limite.*gasto|budget|orÃ§amento|finanÃ§a)/i.test(t)) return 'save_finance'
+  if (/(anota|registra|salva|guarda|cria.*(nota|tarefa|lembrete)|me lembra|nÃÂ£o esquecer|preciso fazer|tenho que)/i.test(t)) return 'save_note'
+  if (/(cria.*evento|coloca na agenda|quero agendar|marca.*(reuniÃÂ£o|consulta|compromisso)|adiciona.*calendÃÂ¡rio|agenda.*para)/i.test(t)) return 'create_event'
+  if (/(academia|exercÃÂ­cio|treino|meditar|beber ÃÂ¡gua|dormir cedo|hÃÂ¡bito|rotina diÃÂ¡ria)/i.test(t)) return 'save_habit'
+  if (/(gastei|comprei|paguei|recebi|salÃÂ¡rio|limite.*gasto|budget|orÃÂ§amento|finanÃÂ§a)/i.test(t)) return 'save_finance'
   if (/(projeto|sprint|milestone|deadline|entrega|fase do)/i.test(t)) return 'save_project'
   return 'chat'
 }
 
-// ââ AI call âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ AI call Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 async function callAI(messages: Message[], system: string, stream = false, geminiKey?: string): Promise<Response | string> {
   if (process.env.OPENROUTER_API_KEY) {
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -55,7 +55,7 @@ async function callAI(messages: Message[], system: string, stream = false, gemin
   return (await res.json()).candidates[0].content.parts[0].text as string
 }
 
-// ââ Azure TTS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Azure TTS Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 async function azureTTS(text: string): Promise<ArrayBuffer | null> {
   const key = process.env.AZURE_TTS_KEY
   const region = process.env.AZURE_TTS_REGION || 'brazilsouth'
@@ -90,7 +90,7 @@ async function azureTTS(text: string): Promise<ArrayBuffer | null> {
   return ttsRes.arrayBuffer()
 }
 
-// ââ Main handler ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Main handler Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export async function POST(req: NextRequest) {
   const {
     messages, userName, lang, calendarContext,
@@ -106,45 +106,45 @@ export async function POST(req: NextRequest) {
   })
   const calInfo = calendarContext
     ? `AGENDA REAL:\n${calendarContext}\nNUNCA invente eventos.`
-    : 'AGENDA: NÃ£o carregada.'
+    : 'AGENDA: NÃÂ£o carregada.'
   const voiceRule = voiceMode
-    ? 'MODO VOZ: MÃ¡ximo 2 frases curtas. Sem markdown, sem listas, sem emojis.'
-    : 'FormataÃ§Ã£o markdown permitida.'
+    ? 'MODO VOZ: MÃÂ¡ximo 2 frases curtas. Sem markdown, sem listas, sem emojis.'
+    : 'FormataÃÂ§ÃÂ£o markdown permitida.'
 
-  // ââ SAVE NOTE ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂ SAVE NOTE Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   if (intent === 'save_note') {
-    const sys = `Extraia uma anotaÃ§Ã£o do texto. Responda SOMENTE JSON vÃ¡lido:\n{"tipo":"nota|tarefa|lembrete","titulo":"tÃ­tulo curto","conteudo":"conteÃºdo","prioridade":"alta|media|baixa","lembrete_em":"YYYY-MM-DDTHH:mm:ss ou null"}\nData: ${now}`
+    const sys = `Extraia uma anotaÃÂ§ÃÂ£o do texto. Responda SOMENTE JSON vÃÂ¡lido:\n{"tipo":"nota|tarefa|lembrete","titulo":"tÃÂ­tulo curto","conteudo":"conteÃÂºdo","prioridade":"alta|media|baixa","lembrete_em":"YYYY-MM-DDTHH:mm:ss ou null"}\nData: ${now}`
     try {
       const raw = await callAI([{ role: 'user', content: lastMsg }], sys, false, geminiKey) as string
       const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim())
       const label = parsed.tipo === 'tarefa' ? 'Tarefa criada' : parsed.tipo === 'lembrete' ? 'Lembrete criado' : 'Anotado'
       const reply = voiceMode
         ? `${label}: ${parsed.titulo || parsed.conteudo?.substring(0, 40)}`
-        : `â **${label}!**\n\n**${parsed.titulo || ''}**\n${parsed.conteudo}${parsed.lembrete_em ? `\n\nâ° ${new Date(parsed.lembrete_em).toLocaleString('pt-BR')}` : ''}\n\nPrioridade: ${parsed.prioridade}`
+        : `Ã¢ÂÂ **${label}!**\n\n**${parsed.titulo || ''}**\n${parsed.conteudo}${parsed.lembrete_em ? `\n\nÃ¢ÂÂ° ${new Date(parsed.lembrete_em).toLocaleString('pt-BR')}` : ''}\n\nPrioridade: ${parsed.prioridade}`
       return buildResponse(reply, parsed, 'note', ttsEnabled, voiceMode)
     } catch {}
   }
 
-  // ââ SAVE HABIT âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂ SAVE HABIT Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   if (intent === 'save_habit') {
-    const sys = `Extraia um hÃ¡bito. Responda SOMENTE JSON vÃ¡lido:\n{"nome":"nome do hÃ¡bito","frequencia":"diario|semanal","horario_sugerido":"HH:mm ou null","meta_dias":30}\nData: ${now}`
+    const sys = `Extraia um hÃÂ¡bito. Responda SOMENTE JSON vÃÂ¡lido:\n{"nome":"nome do hÃÂ¡bito","frequencia":"diario|semanal","horario_sugerido":"HH:mm ou null","meta_dias":30}\nData: ${now}`
     try {
       const raw = await callAI([{ role: 'user', content: lastMsg }], sys, false, geminiKey) as string
       const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim())
       const reply = voiceMode
-        ? `HÃ¡bito criado: ${parsed.nome}`
-        : `ð¯ **HÃ¡bito criado!**\n\n**${parsed.nome}**\nFrequÃªncia: ${parsed.frequencia}\nMeta: ${parsed.meta_dias} dias${parsed.horario_sugerido ? `\nHorÃ¡rio: ${parsed.horario_sugerido}` : ''}`
+        ? `HÃÂ¡bito criado: ${parsed.nome}`
+        : `Ã°ÂÂÂ¯ **HÃÂ¡bito criado!**\n\n**${parsed.nome}**\nFrequÃÂªncia: ${parsed.frequencia}\nMeta: ${parsed.meta_dias} dias${parsed.horario_sugerido ? `\nHorÃÂ¡rio: ${parsed.horario_sugerido}` : ''}`
       return buildResponse(reply, parsed, 'habit', ttsEnabled, voiceMode)
     } catch {}
   }
 
-  // ââ SAVE FINANCE âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂ SAVE FINANCE Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   if (intent === 'save_finance') {
-    const sys = `Extraia transaÃ§Ã£o financeira. Responda SOMENTE JSON vÃ¡lido:\n{"tipo":"gasto|receita","valor":0.00,"categoria":"alimentaÃ§Ã£o|transporte|saÃºde|lazer|outro","descricao":"descriÃ§Ã£o curta","data":"YYYY-MM-DD"}\nData: ${now}`
+    const sys = `Extraia transaÃÂ§ÃÂ£o financeira. Responda SOMENTE JSON vÃÂ¡lido:\n{"tipo":"gasto|receita","valor":0.00,"categoria":"alimentaÃÂ§ÃÂ£o|transporte|saÃÂºde|lazer|outro","descricao":"descriÃÂ§ÃÂ£o curta","data":"YYYY-MM-DD"}\nData: ${now}`
     try {
       const raw = await callAI([{ role: 'user', content: lastMsg }], sys, false, geminiKey) as string
       const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim())
-      const emoji = parsed.tipo === 'receita' ? 'ð°' : 'ð¸'
+      const emoji = parsed.tipo === 'receita' ? 'Ã°ÂÂÂ°' : 'Ã°ÂÂÂ¸'
       const reply = voiceMode
         ? `${parsed.tipo === 'receita' ? 'Receita' : 'Gasto'} de R$ ${parsed.valor} registrado`
         : `${emoji} **${parsed.tipo === 'receita' ? 'Receita' : 'Gasto'} registrado!**\n\nValor: **R$ ${parsed.valor}**\nCategoria: ${parsed.categoria}\n${parsed.descricao}`
@@ -152,9 +152,9 @@ export async function POST(req: NextRequest) {
     } catch {}
   }
 
-  // ââ CREATE EVENT âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂ CREATE EVENT Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   if (intent === 'create_event' && accessToken) {
-    const sys = `Extraia evento. Responda SOMENTE JSON vÃ¡lido:\n{"summary":"tÃ­tulo","start":"YYYY-MM-DDTHH:mm:ss","end":"YYYY-MM-DDTHH:mm:ss","description":null}\nData: ${now}. Se nÃ£o souber o fim, soma 1h ao inÃ­cio.`
+    const sys = `Extraia evento. Responda SOMENTE JSON vÃÂ¡lido:\n{"summary":"tÃÂ­tulo","start":"YYYY-MM-DDTHH:mm:ss","end":"YYYY-MM-DDTHH:mm:ss","description":null}\nData: ${now}. Se nÃÂ£o souber o fim, soma 1h ao inÃÂ­cio.`
     try {
       const raw = await callAI([{ role: 'user', content: lastMsg }], sys, false, geminiKey) as string
       const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim())
@@ -170,16 +170,16 @@ export async function POST(req: NextRequest) {
       if (gcal.ok) {
         const reply = voiceMode
           ? `Evento criado: ${parsed.summary}`
-          : `â **Evento criado!**\n\nð **${parsed.summary}**\nâ° ${new Date(parsed.start).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`
+          : `Ã¢ÂÂ **Evento criado!**\n\nÃ°ÂÂÂ **${parsed.summary}**\nÃ¢ÂÂ° ${new Date(parsed.start).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`
         return buildResponse(reply, parsed, 'event', ttsEnabled, voiceMode)
       }
     } catch {}
   }
 
-  // ââ STREAMING CHAT âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-  const system = `VocÃª Ã© LUNA, assistente pessoal de ${userName || 'usuÃ¡rio'}. Responda APENAS em ${lang === 'en' ? 'English' : lang === 'es' ? 'espaÃ±ol' : 'portuguÃªs brasileiro'}. Data: ${now}\n${voiceRule}\n${calInfo}`
+  // Ã¢ÂÂÃ¢ÂÂ STREAMING CHAT Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  const system = `VocÃÂª ÃÂ© LUNA, assistente pessoal de ${userName || 'usuÃÂ¡rio'}. Responda APENAS em ${lang === 'en' ? 'English' : lang === 'es' ? 'espaÃÂ±ol' : 'portuguÃÂªs brasileiro'}. Data: ${now}\n${voiceRule}\n${calInfo}`
 
-  // Se tem TTS ativo, nÃ£o streamamos (precisamos do texto completo para Azure TTS)
+  // Se tem TTS ativo, nÃÂ£o streamamos (precisamos do texto completo para Azure TTS)
   if (ttsEnabled && voiceMode) {
     try {
       const reply = await callAI(messages, system, false, geminiKey) as string
@@ -235,7 +235,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// ââ Helper: monta resposta com TTS opcional âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Helper: monta resposta com TTS opcional Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 async function buildResponse(
   reply: string,
   data: Record<string, unknown> | null,
