@@ -1,40 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const AZURE_KEY    = process.env.AZURE_TTS_KEY    || ''
-const AZURE_REGION = process.env.AZURE_TTS_REGION || 'brazilsouth'
+const ELEVEN_KEY     = process.env.ELEVENLABS_API_KEY  || ''
+const ELEVEN_VOICE   = process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM'
 
 export async function POST(req: NextRequest) {
-  const { text, lang = 'pt' } = await req.json()
+  const { text } = await req.json()
   if (!text) return NextResponse.json({ error: 'no text' }, { status: 400 })
+  if (!ELEVEN_KEY) return NextResponse.json({ error: 'no key' }, { status: 503 })
 
-  const key = AZURE_KEY
-  if (!key) return NextResponse.json({ error: 'no key' }, { status: 503 })
-
-  // Limpa markdown e caracteres especiais
+  // Limpa markdown
   const clean = text.replace(/[*_`#>\[\]]/g, '').replace(/\n+/g, ' ').trim().slice(0, 800)
-  const escaped = clean.replace(/[<>&"]/g, (c: string) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c] ?? c))
 
-  const ssml = `<speak version='1.0' xml:lang='pt-BR'>
-    <voice name='pt-BR-JulioNeural'>
-      <prosody rate='+6%' pitch='-0.3st' style='assistant'>${escaped}</prosody>
-    </voice>
-  </speak>`
-
-  const endpoint = `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`
-
-  const res = await fetch(endpoint, {
+  const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVEN_VOICE}`, {
     method: 'POST',
     headers: {
-      'Ocp-Apim-Subscription-Key': key,
-      'Content-Type': 'application/ssml+xml',
-      'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3',
+      'xi-api-key': ELEVEN_KEY,
+      'Content-Type': 'application/json',
+      'Accept': 'audio/mpeg',
     },
-    body: ssml,
+    body: JSON.stringify({
+      text: clean,
+      model_id: 'eleven_multilingual_v2',
+      voice_settings: { stability: 0.5, similarity_boost: 0.75, style: 0.4, use_speaker_boost: true },
+    }),
   })
 
-  if (!res.ok) return NextResponse.json({ error: 'tts failed' }, { status: 500 })
+  if (!res.ok) {
+    const err = await res.text()
+    return NextResponse.json({ error: 'elevenlabs failed: ' + err }, { status: 500 })
+  }
+
   const buffer = await res.arrayBuffer()
   return new NextResponse(buffer, {
-    headers: { 'Content-Type': 'audio/mpeg', 'Content-Length': buffer.byteLength.toString() }
+    headers: {
+      'Content-Type': 'audio/mpeg',
+      'Content-Length': buffer.byteLength.toString(),
+    },
   })
 }
