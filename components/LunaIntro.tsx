@@ -9,13 +9,14 @@ interface LunaIntroProps {
 
 export default function LunaIntro({ userName, onDone, onFinish }: LunaIntroProps) {
   const voicePlayedRef = useRef(false)
+  const done = onDone ?? onFinish ?? (() => {})
 
   useEffect(() => {
     if (!voicePlayedRef.current) {
       voicePlayedRef.current = true
       playVoice(userName)
     }
-    const timer = setTimeout(() => { (onDone ?? onFinish)?.() }, 6000)
+    const timer = setTimeout(() => { done() }, 6000)
     return () => clearTimeout(timer)
   }, [])
 
@@ -24,8 +25,8 @@ export default function LunaIntro({ userName, onDone, onFinish }: LunaIntroProps
       const hour = new Date().getHours()
       const greeting = hour >= 5 && hour < 12 ? 'Bom dia' : hour >= 12 && hour < 18 ? 'Boa tarde' : 'Boa noite'
       const text = name
-        ? `${greeting}! Bem-vindo Ã  LUNA, ${name}. Seu assistente inteligente estÃ¡ pronto.`
-        : `${greeting}! Bem-vindo Ã  LUNA. Seu assistente inteligente estÃ¡ pronto.`
+        ? `${greeting}! Bem-vindo a LUNA, ${name}. Seu assistente inteligente esta pronto.`
+        : `${greeting}! Bem-vindo a LUNA. Seu assistente inteligente esta pronto.`
 
       const res = await fetch('/api/tts', {
         method: 'POST',
@@ -49,13 +50,13 @@ export default function LunaIntro({ userName, onDone, onFinish }: LunaIntroProps
   return (
     <div
       style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#0a0a1a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-      onClick={onFinish}
+      onClick={done}
     >
       <video
         src="/luna-intro.mp4"
         autoPlay
         playsInline
-        onEnded={() => (onDone ?? onFinish)?.()
+        onEnded={done}
         style={{ maxWidth: '100%', maxHeight: '80vh' }}
       />
       <p style={{ color: '#a78bfa', marginTop: 16, fontSize: 14, opacity: 0.7 }}>Clique para continuar</p>
