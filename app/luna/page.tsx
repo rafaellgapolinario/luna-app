@@ -10,7 +10,7 @@ function uid()  { return Math.random().toString(36).slice(2) }
 function tstr() { return new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) }
 function cleanTTS(t:string) {
   return t.replace(/\*\*(.*?)\*\*/g,'$1').replace(/#{1,6}\s/g,'')
-    .replace(/[📅✅⏰📝💡🔥⚡🎉❌🛡️]/g,'').substring(0,350)
+    .replace(/[ðââ°ðð¡ð¥â¡ðâð¡ï¸]/g,'').substring(0,350)
 }
 
 const COL:Record<S,string> = { idle:'#7c6dfa', listening:'#f87171', thinking:'#f59e0b', speaking:'#22d3a0' }
@@ -24,7 +24,7 @@ export default function LUNAPage() {
 
   const [s,     setS]    = useState<S>('idle')
   const [msgs,  setMsgs] = useState<Msg[]>([{id:uid(),role:'luna',time:tstr(),
-    text:`Olá${userProfile?', '+(userProfile.given_name||userProfile.name):''}! Pressione o botão do microfone ou Espaço para falar.`}])
+    text:`OlÃ¡${userProfile?', '+(userProfile.given_name||userProfile.name):''}! Pressione o botÃ£o do microfone ou EspaÃ§o para falar.`}])
   const [live,  setLive]  = useState('')
   const [input, setInput] = useState('')
 
@@ -37,7 +37,7 @@ export default function LUNAPage() {
   useEffect(()=>{ sRef.current=s },[s])
   useEffect(()=>{ endRef.current?.scrollIntoView({behavior:'smooth'}) },[msgs])
 
-  // ── Browser TTS ────────────────────────────────────────
+  // ââ Browser TTS ââââââââââââââââââââââââââââââââââââââââ
   const browserSpeak = useCallback((text:string, onEnd?:()=>void)=>{
     const synth = window.speechSynthesis
     synth.cancel()
@@ -56,7 +56,7 @@ export default function LUNAPage() {
     else { window.speechSynthesis.onvoiceschanged = go }
   },[])
 
-  // ── Speak ──────────────────────────────────────────────
+  // ââ Speak ââââââââââââââââââââââââââââââââââââââââââââââ
   const speak = useCallback(async (text:string, onEnd?:()=>void)=>{
     setS('speaking')
     try {
@@ -73,7 +73,7 @@ export default function LUNAPage() {
     } catch { browserSpeak(text,onEnd) }
   },[browserSpeak])
 
-  // ── Stop mic ───────────────────────────────────────────
+  // ââ Stop mic âââââââââââââââââââââââââââââââââââââââââââ
   const stopMic = useCallback(()=>{
     lisRef.current = false
     try{ recRef.current?.stop() }catch{}
@@ -82,7 +82,7 @@ export default function LUNAPage() {
     setLive('')
   },[])
 
-  // ── Start mic — manual trigger only ───────────────────
+  // ââ Start mic â manual trigger only âââââââââââââââââââ
   const startMic = useCallback(()=>{
     const SR=(window as any).SpeechRecognition||(window as any).webkitSpeechRecognition
     if(!SR){ showToast('Use Chrome para reconhecimento de voz.'); return }
@@ -123,7 +123,7 @@ export default function LUNAPage() {
 
     rec.onerror = (e:any)=>{
       stopMic()
-      if(e.error === 'not-allowed') showToast('Permita o microfone: clique no cadeado na barra de endereço.')
+      if(e.error === 'not-allowed') showToast('Permita o microfone: clique no cadeado na barra de endereÃ§o.')
       else if(e.error !== 'no-speech' && e.error !== 'aborted') showToast('Erro mic: '+e.error)
     }
 
@@ -134,7 +134,7 @@ export default function LUNAPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[showToast, stopMic])
 
-  // ── Send to AI ─────────────────────────────────────────
+  // ââ Send to AI âââââââââââââââââââââââââââââââââââââââââ
   const sendToAI = useCallback(async (text:string)=>{
     if(!text.trim()) return
     setS('thinking'); setLive('')
@@ -150,13 +150,30 @@ export default function LUNAPage() {
           userEmail:userProfile?.email, accessToken,
         })
       })
-      const data = await res.json()
-      const reply = data.reply||'Não consegui processar.'
+      // Read SSE stream
+      const reader = res.body?.getReader()
+      const decoder = new TextDecoder()
+      let fullText = ''
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          const chunk = decoder.decode(value)
+          const lines = chunk.split('\n')
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try { const p = JSON.parse(line.slice(6)); if (p.text) fullText += p.text } catch {}
+            }
+          }
+        }
+      }
+      const data = { reply: fullText || 'NÃ£o consegui processar.' }
+      const reply = data.reply
       let tag=''
 
       // Save note if created
       if(data.noteCreated && data.noteData && userProfile?.email){
-        tag='📝 Salvo!'
+        tag='ð Salvo!'
         fetch('/api/notes',{
           method:'POST',
           headers:{'Content-Type':'application/json','x-user-email':userProfile.email},
@@ -169,7 +186,7 @@ export default function LUNAPage() {
           })
         }).catch(()=>{})
       }
-      if(data.eventCreated) tag='📅 Evento criado!'
+      if(data.eventCreated) tag='ð Evento criado!'
 
       setMsgs(p=>[...p,{id:uid(),role:'luna',text:reply,time:tstr(),tag}])
       addMessage({role:'user',content:text})
@@ -177,8 +194,8 @@ export default function LUNAPage() {
       if(tag) showToast(tag)
       speak(reply)
     } catch {
-      setMsgs(p=>[...p,{id:uid(),role:'luna',text:'Erro de conexão.',time:tstr()}])
-      speak('Erro de conexão.')
+      setMsgs(p=>[...p,{id:uid(),role:'luna',text:'Erro de conexÃ£o.',time:tstr()}])
+      speak('Erro de conexÃ£o.')
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[calendarEvents,chatHistory,userProfile,lang,geminiKey,accessToken,speak,addMessage,showToast])
@@ -210,10 +227,10 @@ export default function LUNAPage() {
   const col = COL[s]
   const isActive = s !== 'idle'
   const statusLabel = {
-    idle:      '🎙️ Pronto — pressione Espaço ou o botão',
-    listening: '🔴 Ouvindo — fale agora...',
-    thinking:  '⚙️ Processando...',
-    speaking:  '🔊 LUNA falando...',
+    idle:      'ðï¸ Pronto â pressione EspaÃ§o ou o botÃ£o',
+    listening: 'ð´ Ouvindo â fale agora...',
+    thinking:  'âï¸ Processando...',
+    speaking:  'ð LUNA falando...',
   }[s]
 
   return (
@@ -227,12 +244,12 @@ export default function LUNAPage() {
         <div style={{padding:'12px 24px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0,zIndex:1,position:'relative'}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             <div style={{width:8,height:8,borderRadius:'50%',background:col,boxShadow:`0 0 8px ${col}`,transition:'background 0.3s',animation:isActive?'pulse 1.5s infinite':'none'}}/>
-            <span style={{fontFamily:'Syne',fontSize:15,fontWeight:700}}>LUNA · Assistente</span>
+            <span style={{fontFamily:'Syne',fontSize:15,fontWeight:700}}>LUNA Â· Assistente</span>
           </div>
           <span style={{fontSize:12,color:col,fontWeight:600,transition:'color 0.3s'}}>{statusLabel}</span>
         </div>
 
-        {/* HUD orb — only when active */}
+        {/* HUD orb â only when active */}
         {isActive&&(
           <div style={{position:'absolute',top:'42%',left:'50%',transform:'translate(-50%,-50%)',zIndex:1,pointerEvents:'none',display:'flex',flexDirection:'column',alignItems:'center',gap:14}}>
             <div style={{position:'relative',width:160,height:160,display:'flex',alignItems:'center',justifyContent:'center'}}>
@@ -328,11 +345,11 @@ export default function LUNAPage() {
           {/* Quick chips */}
           <div style={{display:'flex',gap:6,marginTop:8,flexWrap:'wrap'}}>
             {[
-              ['📅 Agenda','O que tenho na agenda hoje?'],
-              ['📝 Anota','Anota: '],
-              ['✅ Tarefa','Cria tarefa: '],
-              ['⏰ Lembrete','Me lembra de '],
-              ['🧠 Semana','Resumo da minha semana'],
+              ['ð Agenda','O que tenho na agenda hoje?'],
+              ['ð Anota','Anota: '],
+              ['â Tarefa','Cria tarefa: '],
+              ['â° Lembrete','Me lembra de '],
+              ['ð§  Semana','Resumo da minha semana'],
             ].map(([l,v])=>(
               <button key={l}
                 onClick={()=>{ if(v.endsWith(': ')||v.endsWith('de ')){ setInput(v) }else{ sendToAI(v) } }}
@@ -344,7 +361,7 @@ export default function LUNAPage() {
             ))}
           </div>
           <div style={{textAlign:'center',marginTop:6,fontSize:10,color:'var(--text3)'}}>
-            <kbd style={{background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:3,padding:'1px 5px'}}>Espaço</kbd> ativar mic ·
+            <kbd style={{background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:3,padding:'1px 5px'}}>EspaÃ§o</kbd> ativar mic Â·
             <kbd style={{background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:3,padding:'1px 5px',margin:'0 3px'}}>Esc</kbd> parar
           </div>
         </div>
