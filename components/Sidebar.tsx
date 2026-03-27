@@ -1,10 +1,11 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { useStore, OWNER_EMAIL } from '@/lib/store'
 import { t } from '@/lib/translations'
 import NexusIcon from './NexusIcon'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import LunaIntro from './LunaIntro'
 
 const NAV = [
   { href: '/luna',        label: null, staticLabel: '⚡ LUNA',       icon: MicIcon,      highlight: true },
@@ -32,11 +33,12 @@ export function Sidebar() {
   const pathname = usePathname()
   const pb = PLAN_COLORS[currentPlan]
   const owner = userProfile?.email === OWNER_EMAIL
+    const [showIntro, setShowIntro] = useState(false)
 
   return (
     <aside style={{ width: 'var(--sidebar)', flexShrink: 0, background: 'var(--bg2)', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', padding: '24px 0 16px', zIndex: 10 }}>
       {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 20px 28px', borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
+              <div onClick={() => setShowIntro(true)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, padding: '0 20px 28px', borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
         <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#7c6dfa,#a78bfa)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <img src="/luna-logo.png" alt="LUNA" width={20} height={20} style={{ objectFit: "contain", borderRadius: "50%" }} />
         </div>
@@ -84,6 +86,12 @@ export function Sidebar() {
           </Link>
         </div>
       )}
+      {showIntro && (
+              <LunaIntro
+                          userName={userProfile?.given_name || userProfile?.name}
+                          onFinish={() => setShowIntro(false)}
+                        />
+            )}
     </aside>
   )
 }
