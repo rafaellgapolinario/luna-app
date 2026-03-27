@@ -10,5 +10,3 @@ export function NexusIcon({ size = 36 }: { size?: number }) {
     />
   )
 }
-// Alias para compatibilidade
-export { NexusIcon as NexusIcon }
