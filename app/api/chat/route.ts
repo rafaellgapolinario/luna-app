@@ -4,18 +4,18 @@ export const runtime = 'edge'
 
 interface Message { role: 'user' | 'assistant'; content: string }
 
-// ── Intent detection ──────────────────────────────────────────────────────────
+// ââ Intent detection ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function detectIntent(text: string) {
   const t = text.toLowerCase()
-  if (/(anota|registra|salva|guarda|cria.*(nota|tarefa|lembrete)|me lembra|não esquecer|preciso fazer|tenho que)/i.test(t)) return 'save_note'
-  if (/(cria.*evento|coloca na agenda|quero agendar|marca.*(reunião|consulta|compromisso)|adiciona.*calendário|agenda.*para)/i.test(t)) return 'create_event'
-  if (/(academia|exercício|treino|meditar|beber água|dormir cedo|hábito|rotina diária)/i.test(t)) return 'save_habit'
-  if (/(gastei|comprei|paguei|recebi|salário|limite.*gasto|budget|orçamento|finança)/i.test(t)) return 'save_finance'
+  if (/(anota|registra|salva|guarda|cria.*(nota|tarefa|lembrete)|me lembra|nÃ£o esquecer|preciso fazer|tenho que)/i.test(t)) return 'save_note'
+  if (/(cria.*evento|coloca na agenda|quero agendar|marca.*(reuniÃ£o|consulta|compromisso)|adiciona.*calendÃ¡rio|agenda.*para)/i.test(t)) return 'create_event'
+  if (/(academia|exercÃ­cio|treino|meditar|beber Ã¡gua|dormir cedo|hÃ¡bito|rotina diÃ¡ria)/i.test(t)) return 'save_habit'
+  if (/(gastei|comprei|paguei|recebi|salÃ¡rio|limite.*gasto|budget|orÃ§amento|finanÃ§a)/i.test(t)) return 'save_finance'
   if (/(projeto|sprint|milestone|deadline|entrega|fase do)/i.test(t)) return 'save_project'
   return 'chat'
 }
 
-// ── AI call ───────────────────────────────────────────────────────────────────
+// ââ AI call âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 async function callAI(messages: Message[], system: string, stream = false, geminiKey?: string): Promise<Response | string> {
   if (process.env.OPENROUTER_API_KEY) {
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -23,7 +23,7 @@ async function callAI(messages: Message[], system: string, stream = false, gemin
       headers: {
         Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://luna-app.vercel.app',
+        'HTTP-Referer': 'https://minha-luna.com',
       },
       body: JSON.stringify({
         model: 'google/gemini-2.0-flash-001',
@@ -55,7 +55,7 @@ async function callAI(messages: Message[], system: string, stream = false, gemin
   return (await res.json()).candidates[0].content.parts[0].text as string
 }
 
-// ── Azure TTS ─────────────────────────────────────────────────────────────────
+// ââ Azure TTS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 async function azureTTS(text: string): Promise<ArrayBuffer | null> {
   const key = process.env.AZURE_TTS_KEY
   const region = process.env.AZURE_TTS_REGION || 'brazilsouth'
@@ -90,7 +90,7 @@ async function azureTTS(text: string): Promise<ArrayBuffer | null> {
   return ttsRes.arrayBuffer()
 }
 
-// ── Main handler ──────────────────────────────────────────────────────────────
+// ââ Main handler ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 export async function POST(req: NextRequest) {
   const {
     messages, userName, lang, calendarContext,
@@ -106,45 +106,45 @@ export async function POST(req: NextRequest) {
   })
   const calInfo = calendarContext
     ? `AGENDA REAL:\n${calendarContext}\nNUNCA invente eventos.`
-    : 'AGENDA: Não carregada.'
+    : 'AGENDA: NÃ£o carregada.'
   const voiceRule = voiceMode
-    ? 'MODO VOZ: Máximo 2 frases curtas. Sem markdown, sem listas, sem emojis.'
-    : 'Formatação markdown permitida.'
+    ? 'MODO VOZ: MÃ¡ximo 2 frases curtas. Sem markdown, sem listas, sem emojis.'
+    : 'FormataÃ§Ã£o markdown permitida.'
 
-  // ── SAVE NOTE ──────────────────────────────────────────────────────────────
+  // ââ SAVE NOTE ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
   if (intent === 'save_note') {
-    const sys = `Extraia uma anotação do texto. Responda SOMENTE JSON válido:\n{"tipo":"nota|tarefa|lembrete","titulo":"título curto","conteudo":"conteúdo","prioridade":"alta|media|baixa","lembrete_em":"YYYY-MM-DDTHH:mm:ss ou null"}\nData: ${now}`
+    const sys = `Extraia uma anotaÃ§Ã£o do texto. Responda SOMENTE JSON vÃ¡lido:\n{"tipo":"nota|tarefa|lembrete","titulo":"tÃ­tulo curto","conteudo":"conteÃºdo","prioridade":"alta|media|baixa","lembrete_em":"YYYY-MM-DDTHH:mm:ss ou null"}\nData: ${now}`
     try {
       const raw = await callAI([{ role: 'user', content: lastMsg }], sys, false, geminiKey) as string
       const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim())
       const label = parsed.tipo === 'tarefa' ? 'Tarefa criada' : parsed.tipo === 'lembrete' ? 'Lembrete criado' : 'Anotado'
       const reply = voiceMode
         ? `${label}: ${parsed.titulo || parsed.conteudo?.substring(0, 40)}`
-        : `✅ **${label}!**\n\n**${parsed.titulo || ''}**\n${parsed.conteudo}${parsed.lembrete_em ? `\n\n⏰ ${new Date(parsed.lembrete_em).toLocaleString('pt-BR')}` : ''}\n\nPrioridade: ${parsed.prioridade}`
+        : `â **${label}!**\n\n**${parsed.titulo || ''}**\n${parsed.conteudo}${parsed.lembrete_em ? `\n\nâ° ${new Date(parsed.lembrete_em).toLocaleString('pt-BR')}` : ''}\n\nPrioridade: ${parsed.prioridade}`
       return buildResponse(reply, parsed, 'note', ttsEnabled, voiceMode)
     } catch {}
   }
 
-  // ── SAVE HABIT ─────────────────────────────────────────────────────────────
+  // ââ SAVE HABIT âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
   if (intent === 'save_habit') {
-    const sys = `Extraia um hábito. Responda SOMENTE JSON válido:\n{"nome":"nome do hábito","frequencia":"diario|semanal","horario_sugerido":"HH:mm ou null","meta_dias":30}\nData: ${now}`
+    const sys = `Extraia um hÃ¡bito. Responda SOMENTE JSON vÃ¡lido:\n{"nome":"nome do hÃ¡bito","frequencia":"diario|semanal","horario_sugerido":"HH:mm ou null","meta_dias":30}\nData: ${now}`
     try {
       const raw = await callAI([{ role: 'user', content: lastMsg }], sys, false, geminiKey) as string
       const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim())
       const reply = voiceMode
-        ? `Hábito criado: ${parsed.nome}`
-        : `🎯 **Hábito criado!**\n\n**${parsed.nome}**\nFrequência: ${parsed.frequencia}\nMeta: ${parsed.meta_dias} dias${parsed.horario_sugerido ? `\nHorário: ${parsed.horario_sugerido}` : ''}`
+        ? `HÃ¡bito criado: ${parsed.nome}`
+        : `ð¯ **HÃ¡bito criado!**\n\n**${parsed.nome}**\nFrequÃªncia: ${parsed.frequencia}\nMeta: ${parsed.meta_dias} dias${parsed.horario_sugerido ? `\nHorÃ¡rio: ${parsed.horario_sugerido}` : ''}`
       return buildResponse(reply, parsed, 'habit', ttsEnabled, voiceMode)
     } catch {}
   }
 
-  // ── SAVE FINANCE ───────────────────────────────────────────────────────────
+  // ââ SAVE FINANCE âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
   if (intent === 'save_finance') {
-    const sys = `Extraia transação financeira. Responda SOMENTE JSON válido:\n{"tipo":"gasto|receita","valor":0.00,"categoria":"alimentação|transporte|saúde|lazer|outro","descricao":"descrição curta","data":"YYYY-MM-DD"}\nData: ${now}`
+    const sys = `Extraia transaÃ§Ã£o financeira. Responda SOMENTE JSON vÃ¡lido:\n{"tipo":"gasto|receita","valor":0.00,"categoria":"alimentaÃ§Ã£o|transporte|saÃºde|lazer|outro","descricao":"descriÃ§Ã£o curta","data":"YYYY-MM-DD"}\nData: ${now}`
     try {
       const raw = await callAI([{ role: 'user', content: lastMsg }], sys, false, geminiKey) as string
       const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim())
-      const emoji = parsed.tipo === 'receita' ? '💰' : '💸'
+      const emoji = parsed.tipo === 'receita' ? 'ð°' : 'ð¸'
       const reply = voiceMode
         ? `${parsed.tipo === 'receita' ? 'Receita' : 'Gasto'} de R$ ${parsed.valor} registrado`
         : `${emoji} **${parsed.tipo === 'receita' ? 'Receita' : 'Gasto'} registrado!**\n\nValor: **R$ ${parsed.valor}**\nCategoria: ${parsed.categoria}\n${parsed.descricao}`
@@ -152,9 +152,9 @@ export async function POST(req: NextRequest) {
     } catch {}
   }
 
-  // ── CREATE EVENT ───────────────────────────────────────────────────────────
+  // ââ CREATE EVENT âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
   if (intent === 'create_event' && accessToken) {
-    const sys = `Extraia evento. Responda SOMENTE JSON válido:\n{"summary":"título","start":"YYYY-MM-DDTHH:mm:ss","end":"YYYY-MM-DDTHH:mm:ss","description":null}\nData: ${now}. Se não souber o fim, soma 1h ao início.`
+    const sys = `Extraia evento. Responda SOMENTE JSON vÃ¡lido:\n{"summary":"tÃ­tulo","start":"YYYY-MM-DDTHH:mm:ss","end":"YYYY-MM-DDTHH:mm:ss","description":null}\nData: ${now}. Se nÃ£o souber o fim, soma 1h ao inÃ­cio.`
     try {
       const raw = await callAI([{ role: 'user', content: lastMsg }], sys, false, geminiKey) as string
       const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim())
@@ -170,16 +170,16 @@ export async function POST(req: NextRequest) {
       if (gcal.ok) {
         const reply = voiceMode
           ? `Evento criado: ${parsed.summary}`
-          : `✅ **Evento criado!**\n\n📅 **${parsed.summary}**\n⏰ ${new Date(parsed.start).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`
+          : `â **Evento criado!**\n\nð **${parsed.summary}**\nâ° ${new Date(parsed.start).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`
         return buildResponse(reply, parsed, 'event', ttsEnabled, voiceMode)
       }
     } catch {}
   }
 
-  // ── STREAMING CHAT ─────────────────────────────────────────────────────────
-  const system = `Você é LUNA, assistente pessoal de ${userName || 'usuário'}. Responda APENAS em ${lang === 'en' ? 'English' : lang === 'es' ? 'español' : 'português brasileiro'}. Data: ${now}\n${voiceRule}\n${calInfo}`
+  // ââ STREAMING CHAT âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  const system = `VocÃª Ã© LUNA, assistente pessoal de ${userName || 'usuÃ¡rio'}. Responda APENAS em ${lang === 'en' ? 'English' : lang === 'es' ? 'espaÃ±ol' : 'portuguÃªs brasileiro'}. Data: ${now}\n${voiceRule}\n${calInfo}`
 
-  // Se tem TTS ativo, não streamamos (precisamos do texto completo para Azure TTS)
+  // Se tem TTS ativo, nÃ£o streamamos (precisamos do texto completo para Azure TTS)
   if (ttsEnabled && voiceMode) {
     try {
       const reply = await callAI(messages, system, false, geminiKey) as string
@@ -235,7 +235,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// ── Helper: monta resposta com TTS opcional ───────────────────────────────────
+// ââ Helper: monta resposta com TTS opcional âââââââââââââââââââââââââââââââââââ
 async function buildResponse(
   reply: string,
   data: Record<string, unknown> | null,
