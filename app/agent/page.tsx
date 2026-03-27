@@ -239,7 +239,7 @@ export default function AgentPage() {
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px 32px', display: 'flex', flexDirection: 'column', gap: 12 }}>
           {chatHistory.length === 0 && (
             <div className="msg msg-ai">
-              <div style={{ fontSize: 10, color: 'var(--accent2)', fontWeight: 600, marginBottom: 5, letterSpacing: 0.5 }}>NEXUS IA</div>
+              <div style={{ fontSize: 10, color: 'var(--accent2)', fontWeight: 600, marginBottom: 5, letterSpacing: 0.5 }}>LUNA IA</div>
               {t(lang, 'ai_welcome')}
             </div>
           )}
@@ -247,7 +247,7 @@ export default function AgentPage() {
           {chatHistory.map((m: any, i: number) => (
             <div key={i} className={`msg ${m.role === 'user' ? 'msg-user' : 'msg-ai'}`}>
               {m.role === 'assistant' && (
-                <div style={{ fontSize: 10, color: 'var(--accent2)', fontWeight: 600, marginBottom: 4, letterSpacing: 0.5 }}>NEXUS IA</div>
+                <div style={{ fontSize: 10, color: 'var(--accent2)', fontWeight: 600, marginBottom: 4, letterSpacing: 0.5 }}>LUNA IA</div>
               )}
               <div dangerouslySetInnerHTML={{
                 __html: m.content
@@ -261,7 +261,7 @@ export default function AgentPage() {
           {/* Streaming em tempo real */}
           {streaming && (
             <div className="msg msg-ai">
-              <div style={{ fontSize: 10, color: 'var(--accent2)', fontWeight: 600, marginBottom: 5, letterSpacing: 0.5 }}>NEXUS IA</div>
+              <div style={{ fontSize: 10, color: 'var(--accent2)', fontWeight: 600, marginBottom: 5, letterSpacing: 0.5 }}>LUNA IA</div>
               <div dangerouslySetInnerHTML={{ __html: streaming.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') }} />
               <span style={{ opacity: 0.4, animation: 'blink 1s infinite' }}>▊</span>
             </div>
