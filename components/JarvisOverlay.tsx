@@ -13,22 +13,32 @@ export async function speakText(text: string, ttsEnabled: boolean): Promise<void
   if (!text) return
   if (ttsEnabled) {
     try {
-      const res = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) })
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      })
       if (res.ok) {
-        const { audioBase64 } = await res.json()
-        if (audioBase64) {
+        const ct = res.headers.get('content-type') || ''
+        let blob: Blob
+        if (ct.includes('audio')) {
+          const buffer = await res.arrayBuffer()
+          blob = new Blob([buffer], { type: 'audio/mpeg' })
+        } else {
+          const { audioBase64 } = await res.json()
+          if (!audioBase64) return
           const binary = atob(audioBase64)
           const bytes = new Uint8Array(binary.length)
           for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
-          const blob = new Blob([bytes], { type: 'audio/mp3' })
-          const url = URL.createObjectURL(blob)
-          const audio = new Audio(url)
-          return new Promise(resolve => {
-            audio.onended = () => { URL.revokeObjectURL(url); resolve() }
-            audio.onerror = () => { URL.revokeObjectURL(url); resolve() }
-            audio.play().catch(() => resolve())
-          })
+          blob = new Blob([bytes], { type: 'audio/mp3' })
         }
+        const url = URL.createObjectURL(blob)
+        const audio = new Audio(url)
+        return new Promise(resolve => {
+          audio.onended = () => { URL.revokeObjectURL(url); resolve() }
+          audio.onerror = () => { URL.revokeObjectURL(url); resolve() }
+          audio.play().catch(() => resolve())
+        })
       }
     } catch {}
   }
