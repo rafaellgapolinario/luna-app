@@ -24,6 +24,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <StoreProvider>
           {children}
         </StoreProvider>
+        {/* Links estaticos para verificacao Google OAuth */}
+        <footer style={{ position: 'fixed', bottom: 0, left: 0, right: 0, textAlign: 'center', padding: '6px', fontSize: 11, background: 'transparent', zIndex: 0, pointerEvents: 'none' }}>
+          <a href="/privacy" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none', pointerEvents: 'auto' }}>Politica de Privacidade</a>
+          {' · '}
+          <a href="/terms" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none', pointerEvents: 'auto' }}>Termos de Uso</a>
+        </footer>
       </body>
     </html>
   )
