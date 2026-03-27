@@ -218,8 +218,8 @@ export default function LandingPage() {
         </div>
 
         <h1 style={{
-          fontFamily: 'Syne', fontWeight: 800, fontSize: 'clamp(42px,6vw,80px)',
-          lineHeight: 1.05, letterSpacing: -2, marginBottom: 24, maxWidth: 900,
+          fontFamily: 'Syne', fontWeight: 700, fontSize: 'clamp(36px,5vw,64px)',
+          lineHeight: 1.05, letterSpacing: -1, marginBottom: 24, maxWidth: 900,
           background: 'linear-gradient(135deg,#f0f0f8 30%,rgba(167,139,250,0.8))',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>
@@ -326,7 +326,7 @@ export default function LandingPage() {
             {/* main content */}
             <div>
               <div style={{ marginBottom: 20 }}>
-                <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 20, marginBottom: 4 }}>Bom dia, Rafael 👋</div>
+                <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 20, marginBottom: 4 }}>Bom dia, voce 👋</div>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Sexta-feira, 28 de março · 3 eventos hoje</div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 20 }}>
@@ -365,7 +365,7 @@ export default function LandingPage() {
       <section id="recursos" style={{ padding: '80px 40px', maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 64 }}>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: '#7c6dfa', textTransform: 'uppercase', marginBottom: 16 }}>Recursos</div>
-          <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 'clamp(28px,4vw,48px)', letterSpacing: -1.5, marginBottom: 16 }}>
+          <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 'clamp(28px,4vw,44px)', letterSpacing: -0.5, marginBottom: 16 }}>
             Tudo que você precisa,<br />em um só lugar
           </h2>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', maxWidth: 480, margin: '0 auto' }}>
@@ -393,7 +393,7 @@ export default function LandingPage() {
       <section id="preços" style={{ padding: '80px 40px', maxWidth: 900, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: '#7c6dfa', textTransform: 'uppercase', marginBottom: 16 }}>Preços</div>
-          <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 'clamp(28px,4vw,48px)', letterSpacing: -1.5, marginBottom: 16 }}>
+          <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 'clamp(28px,4vw,44px)', letterSpacing: -0.5, marginBottom: 16 }}>
             Simples e transparente
           </h2>
 
@@ -470,7 +470,7 @@ export default function LandingPage() {
       <section id="faq" style={{ padding: '80px 40px', maxWidth: 720, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: '#7c6dfa', textTransform: 'uppercase', marginBottom: 16 }}>FAQ</div>
-          <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 'clamp(28px,4vw,40px)', letterSpacing: -1.5 }}>
+          <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 'clamp(28px,4vw,36px)', letterSpacing: -1.5 }}>
             Dúvidas frequentes
           </h2>
         </div>
@@ -490,7 +490,7 @@ export default function LandingPage() {
           background: 'radial-gradient(ellipse,rgba(124,109,250,0.15) 0%,transparent 70%)',
           pointerEvents: 'none',
         }} />
-        <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 'clamp(32px,5vw,60px)', letterSpacing: -2, marginBottom: 16 }}>
+        <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 'clamp(28px,4vw,52px)', letterSpacing: -2, marginBottom: 16 }}>
           Comece hoje, de graça.
         </h2>
         <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', marginBottom: 40, maxWidth: 420, margin: '0 auto 40px' }}>
