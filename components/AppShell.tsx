@@ -6,8 +6,6 @@ import { Sidebar }   from './Sidebar'
 import { Topbar }    from './Topbar'
 import { BottomNav } from './BottomNav'
 import { Toast }     from './Toast'
-import { NexusIcon } from './NexusIcon'
-
 export function AppShell({ children }: { children: React.ReactNode }) {
   const accessToken = useStore(s => s.accessToken)
   const router   = useRouter()
