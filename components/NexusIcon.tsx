@@ -1,12 +1,16 @@
-'use client'
-export function NexusIcon({ size = 36 }: { size?: number }) {
+import React from 'react'
+
+export default function NexusIcon({ size = 40 }: { size?: number }) {
   return (
     <img
       src="/luna-logo.png"
       alt="LUNA"
-      width={size}
-      height={size}
-      style={{ objectFit: 'contain', borderRadius: '50%' }}
+      style={{
+        width: size,
+        height: size,
+        objectFit: 'contain',
+        borderRadius: '50%',
+      }}
     />
   )
 }
