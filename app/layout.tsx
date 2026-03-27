@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   description: 'IA + Agenda + WhatsApp integrados',
   manifest: '/manifest.json',
   appleWebApp: { capable: true, title: 'LUNA' },
+  verification: {
+    google: 'eOVhnV2JUeHSCE2iLmOJz4z-KE4GP5r1Ya75l6-dJ7A',
+  },
 }
 
 export const viewport: Viewport = {
