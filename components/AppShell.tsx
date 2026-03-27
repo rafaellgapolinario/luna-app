@@ -47,6 +47,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {children}
         </main>
+        {/* Footer com links legais - necessário para verificação Google OAuth */}
+        <div style={{ textAlign: 'center', padding: '4px 0', fontSize: 10, color: 'var(--text3)', flexShrink: 0, borderTop: '1px solid var(--border)' }}>
+          <a href="/privacy" style={{ color: 'var(--text3)', textDecoration: 'none' }}>Política de Privacidade</a>
+          {' · '}
+          <a href="/terms" style={{ color: 'var(--text3)', textDecoration: 'none' }}>Termos de Uso</a>
+        </div>
         <BottomNav />
       </div>
       <Toast />
