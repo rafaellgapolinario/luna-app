@@ -22,9 +22,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (accessToken) {
-      const shown = sessionStorage.getItem(INTRO_KEY)
-      if (!shown) { sessionStorage.setItem(INTRO_KEY,'1'); setShowIntro(true) }
-      else router.replace('/')
+            setShowIntro(true)
     }
   }, [accessToken, router])
 
@@ -55,9 +53,7 @@ export default function LoginPage() {
           setAuth(resp.access_token, profile, authData.id)
           setIntroName(profile.given_name || profile.name || '')
           showToast(t(lang, 'logged_in'))
-          const shown = sessionStorage.getItem(INTRO_KEY)
-          if (!shown) { sessionStorage.setItem(INTRO_KEY,'1'); setShowIntro(true) }
-          else router.replace('/')
+                        setShowIntro(true)
         } catch { showToast(t(lang, 'err_connect')) }
       },
     }).requestAccessToken({ prompt: 'consent' })
