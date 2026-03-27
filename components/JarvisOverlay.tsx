@@ -1,6 +1,6 @@
 'use client'
 import { useRef, useCallback, useState } from 'react'
-import { NexusIcon } from './NexusIcon'
+import NexusIcon from './NexusIcon'
 
 interface Props {
   visible: boolean
@@ -107,7 +107,7 @@ export function JarvisOverlay({ visible, status, transcript, onStop }: Props) {
   if (!visible) return null
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(8px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
-      <div style={{ fontFamily: 'Syne,sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: 4, color: 'var(--accent2)', textTransform: 'uppercase', opacity: 0.6 }}>NEXUS Â· JARVIS MODE</div>
+      <div style={{ fontFamily: 'Syne,sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: 4, color: 'var(--accent2)', textTransform: 'uppercase', opacity: 0.6 }}>NEXUS ÃÂ· JARVIS MODE</div>
       <div style={{ width: 130, height: 130, borderRadius: '50%', border: '2px solid var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', animation: 'jarvisSpin 4s linear infinite' }}>
         {[{ s: -10, op: 0.3, d: '2s', r: 'reverse' }, { s: -20, op: 0.15, d: '6s', r: 'normal' }].map((r, i) => (
           <div key={i} style={{ position: 'absolute', inset: r.s, borderRadius: '50%', border: `1px ${i===1?'dashed':'solid'} rgba(124,109,250,${r.op})`, animation: `jarvisSpin ${r.d} linear infinite ${r.r}` }} />
@@ -123,7 +123,7 @@ export function JarvisOverlay({ visible, status, transcript, onStop }: Props) {
       </div>
       <div style={{ fontSize: 15, color: 'var(--text)', fontWeight: 500, textAlign: 'center', maxWidth: 320 }}>{status}</div>
       {transcript && (<div style={{ fontSize: 13, color: 'var(--text2)', textAlign: 'center', maxWidth: 340, fontStyle: 'italic', background: 'rgba(124,109,250,0.08)', border: '1px solid rgba(124,109,250,0.15)', borderRadius: 12, padding: '10px 16px' }}>"{transcript}"</div>)}
-      <button onClick={onStop} style={{ background: 'rgba(248,113,113,0.12)', color: 'var(--red)', border: '1px solid rgba(248,113,113,0.25)', borderRadius: 99, padding: '10px 28px', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s' }}>â Parar</button>
+      <button onClick={onStop} style={{ background: 'rgba(248,113,113,0.12)', color: 'var(--red)', border: '1px solid rgba(248,113,113,0.25)', borderRadius: 99, padding: '10px 28px', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s' }}>Ã¢ÂÂ Parar</button>
     </div>
   )
 }
