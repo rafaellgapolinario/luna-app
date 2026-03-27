@@ -9,14 +9,18 @@ interface LunaIntroProps {
 
 export default function LunaIntro({ userName, onDone, onFinish }: LunaIntroProps) {
   const voicePlayedRef = useRef(false)
-  const done = onDone ?? onFinish ?? (() => {})
+
+  function handleFinish() {
+    if (onDone) onDone()
+    else if (onFinish) onFinish()
+  }
 
   useEffect(() => {
     if (!voicePlayedRef.current) {
       voicePlayedRef.current = true
       playVoice(userName)
     }
-    const timer = setTimeout(() => { done() }, 6000)
+    const timer = setTimeout(() => { handleFinish() }, 6000)
     return () => clearTimeout(timer)
   }, [])
 
@@ -50,13 +54,13 @@ export default function LunaIntro({ userName, onDone, onFinish }: LunaIntroProps
   return (
     <div
       style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#0a0a1a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-      onClick={done}
+      onClick={handleFinish}
     >
       <video
         src="/luna-intro.mp4"
         autoPlay
         playsInline
-        onEnded={done}
+        onEnded={handleFinish}
         style={{ maxWidth: '100%', maxHeight: '80vh' }}
       />
       <p style={{ color: '#a78bfa', marginTop: 16, fontSize: 14, opacity: 0.7 }}>Clique para continuar</p>
