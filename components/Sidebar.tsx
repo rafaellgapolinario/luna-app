@@ -2,7 +2,7 @@
 import React from 'react'
 import { useStore, OWNER_EMAIL } from '@/lib/store'
 import { t } from '@/lib/translations'
-import { NexusIcon } from './NexusIcon'
+import NexusIcon from './NexusIcon'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
