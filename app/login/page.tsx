@@ -18,6 +18,7 @@ export default function LoginPage() {
   }))
   const router = useRouter()
   const [showIntro, setShowIntro] = useState(false)
+  const [introName, setIntroName] = useState('')
 
   useEffect(() => {
     if (accessToken) {
@@ -46,18 +47,14 @@ export default function LoginPage() {
             headers: { Authorization: `Bearer ${resp.access_token}` }
           })
           const profile = await pr.json()
-
-          // Salvar no Supabase e obter o ID do banco
           const authRes = await fetch('/api/auth', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ googleId: profile.sub, nome: profile.name, email: profile.email, avatar: profile.picture }),
           })
           const authData = await authRes.json()
-
-          // Passar token, profile E o ID do banco
           setAuth(resp.access_token, profile, authData.id)
+          setIntroName(profile.given_name || profile.name || '')
           showToast(t(lang, 'logged_in'))
-
           const shown = sessionStorage.getItem(INTRO_KEY)
           if (!shown) { sessionStorage.setItem(INTRO_KEY,'1'); setShowIntro(true) }
           else router.replace('/')
@@ -68,10 +65,8 @@ export default function LoginPage() {
 
   return (
     <>
-      {showIntro && <LunaIntro onDone={() => { setShowIntro(false); router.replace('/') }} />}
+      {showIntro && <LunaIntro onDone={() => { setShowIntro(false); router.replace('/') }} userName={introName} />}
       <div style={{ display:'flex', height:'100dvh', background:'var(--bg)' }}>
-
-        {/* Esquerda */}
         <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:48, position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 60% 50% at 50% 30%,rgba(167,139,250,0.18) 0%,transparent 70%)', pointerEvents:'none' }} />
           <div style={{ marginBottom:20, width:100, height:100, borderRadius:'50%', overflow:'hidden', boxShadow:'0 0 60px rgba(167,139,250,0.4)' }}>
@@ -82,7 +77,7 @@ export default function LoginPage() {
           <div style={{ marginTop:40, width:'100%', maxWidth:400 }}>
             {[
               { icon:'📅', tk:'feat1_title' as const, sk:'feat1_sub' as const, bg:'rgba(124,109,250,0.15)' },
-              { icon:'🤖', tk:'feat2_title' as const, sk:'feat2_sub' as const, bg:'rgba(124,109,250,0.15)' },
+              { icon:'🤬', tk:'feat2_title' as const, sk:'feat2_sub' as const, bg:'rgba(124,109,250,0.15)' },
               { icon:'💸', tk:'feat3_title' as const, sk:'feat3_sub' as const, bg:'rgba(37,211,102,0.12)' },
             ].map(({ icon, tk, sk, bg }) => (
               <div key={tk} style={{ display:'flex', alignItems:'flex-start', gap:14, padding:'14px 0', borderBottom:'1px solid var(--border)' }}>
@@ -95,8 +90,6 @@ export default function LoginPage() {
             ))}
           </div>
         </div>
-
-        {/* Direita */}
         <div style={{ width:420, flexShrink:0, background:'var(--bg2)', borderLeft:'1px solid var(--border)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'48px 40px' }}>
           <div style={{ textAlign:'center', marginBottom:32 }}>
             <div style={{ margin:'0 auto 16px', width:60, height:60, borderRadius:'50%', overflow:'hidden', boxShadow:'0 0 30px rgba(167,139,250,0.35)' }}>
