@@ -232,10 +232,10 @@ export default function LUNAPage() {
   const col = COL[s]
   const isActive = s !== 'idle'
   const statusLabel = {
-    idle:      'ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂ¸ÃÂÃÂ Pronto ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ pressione EspaÃÂÃÂÃÂÃÂ§o ou o botÃÂÃÂÃÂÃÂ£o',
-    listening: 'ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ´ Ouvindo ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ fale agora...',
-    thinking:  'ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂ¸ÃÂÃÂ Processando...',
-    speaking:  'ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ LUNA falando...',
+    idle:      '🌙 Pronto — pressione Espaco ou o botao',
+    listening: '🎤 Ouvindo — fale agora...',
+    thinking:  '⏳ Processando...',
+    speaking:  '🔊 LUNA falando...',
   }[s]
 
   return (
@@ -249,7 +249,7 @@ export default function LUNAPage() {
         <div style={{padding:'12px 24px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0,zIndex:1,position:'relative'}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             <div style={{width:8,height:8,borderRadius:'50%',background:col,boxShadow:`0 0 8px ${col}`,transition:'background 0.3s',animation:isActive?'pulse 1.5s infinite':'none'}}/>
-            <span style={{fontFamily:'Syne',fontSize:15,fontWeight:700}}>LUNA ÃÂÃÂÃÂÃÂ· Assistente</span>
+            <span style={{fontFamily:'Syne',fontSize:15,fontWeight:700}}>LUNA · Assistente</span>
           </div>
           <span style={{fontSize:12,color:col,fontWeight:600,transition:'color 0.3s'}}>{statusLabel}</span>
         </div>
