@@ -4,7 +4,7 @@ import { useStore } from '@/lib/store'
 import { useRouter } from 'next/navigation'
 import { t } from '@/lib/translations'
 import { Toast } from '@/components/Toast'
-import { LunaIntro } from '@/components/LunaIntro'
+import LunaIntro from '@/components/LunaIntro'
 
 const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''
 const SCOPES    = 'https://www.googleapis.com/auth/calendar openid email profile'
@@ -76,9 +76,9 @@ export default function LoginPage() {
           <div style={{ fontSize:16, color:'var(--text2)', maxWidth:360, textAlign:'center', lineHeight:1.6 }}>{t(lang,'login_tagline')}</div>
           <div style={{ marginTop:40, width:'100%', maxWidth:400 }}>
             {[
-              { icon:'📅', tk:'feat1_title' as const, sk:'feat1_sub' as const, bg:'rgba(124,109,250,0.15)' },
-              { icon:'🤬', tk:'feat2_title' as const, sk:'feat2_sub' as const, bg:'rgba(124,109,250,0.15)' },
-              { icon:'💸', tk:'feat3_title' as const, sk:'feat3_sub' as const, bg:'rgba(37,211,102,0.12)' },
+              { icon:'ð', tk:'feat1_title' as const, sk:'feat1_sub' as const, bg:'rgba(124,109,250,0.15)' },
+              { icon:'ð¤¬', tk:'feat2_title' as const, sk:'feat2_sub' as const, bg:'rgba(124,109,250,0.15)' },
+              { icon:'ð¸', tk:'feat3_title' as const, sk:'feat3_sub' as const, bg:'rgba(37,211,102,0.12)' },
             ].map(({ icon, tk, sk, bg }) => (
               <div key={tk} style={{ display:'flex', alignItems:'flex-start', gap:14, padding:'14px 0', borderBottom:'1px solid var(--border)' }}>
                 <div style={{ width:36, height:36, borderRadius:10, background:bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, flexShrink:0 }}>{icon}</div>
