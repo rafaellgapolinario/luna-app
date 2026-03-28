@@ -18,10 +18,10 @@ function tstr() { return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit
 interface Msg { id: string; role: 'user' | 'luna'; text: string; time: string }
 
 export default function LUNAPage() {
-  const { lang, userProfile, geminiKey, calendarEvents, accessToken, showToast, addMessage, chatHistory, userId } = useStore(s => ({
+  const { lang, userProfile, geminiKey, calendarEvents, accessToken, showToast, addMessage, chatHistory, userDbId } = useStore(s => ({
     lang: s.lang, userProfile: s.userProfile, geminiKey: s.geminiKey,
     calendarEvents: s.calendarEvents, accessToken: s.accessToken,
-    showToast: s.showToast, addMessage: s.addMessage, chatHistory: s.chatHistory, userId: s.userId,
+    showToast: s.showToast, addMessage: s.addMessage, chatHistory: s.chatHistory, userDbId: s.userDbId,
   }))
 
   const [s, setS] = useState<S>('idle')
@@ -104,7 +104,7 @@ export default function LUNAPage() {
           messages: [...chatHistory.slice(-8).map(m => ({ role: m.role, content: m.content })), { role: 'user', content: text }],
           lang, userName: userProfile?.given_name || userProfile?.name || '',
           calendarContext: cal, geminiKey, accessToken,
-          userId: userId,
+          userId: userDbId,
           voiceMode: false,
         })
       })
