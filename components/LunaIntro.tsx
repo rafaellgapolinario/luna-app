@@ -9,9 +9,11 @@ interface LunaIntroProps {
 
 export default function LunaIntro({ userName, onDone, onFinish }: LunaIntroProps) {
   const voicePlayedRef = useRef(false)
-  const [videoError, setVideoError] = useState(false)
+  const [done, setDone] = useState(false)
 
   function handleFinish() {
+    if (done) return
+    setDone(true)
     if (onDone) onDone()
     else if (onFinish) onFinish()
   }
@@ -21,6 +23,9 @@ export default function LunaIntro({ userName, onDone, onFinish }: LunaIntroProps
       voicePlayedRef.current = true
       playVoice(userName)
     }
+    // Auto-avançar após 4 segundos se o audio nao disparar o callback
+    const timer = setTimeout(handleFinish, 4500)
+    return () => clearTimeout(timer)
   }, [])
 
   async function playVoice(name?: string) {
@@ -44,69 +49,70 @@ export default function LunaIntro({ userName, onDone, onFinish }: LunaIntroProps
           const d = await res.json()
           url = 'data:audio/mpeg;base64,' + d.audio
         }
-        new Audio(url).play().catch(() => {})
+        const audio = new Audio(url)
+        audio.onended = handleFinish
+        audio.play().catch(() => {})
       }
     } catch (e) { console.log('TTS:', e) }
   }
 
-  // Fallback animado quando o video nao carrega
-  if (videoError) {
-    return (
-      <div
-        style={{
-          position: 'fixed', inset: 0, zIndex: 9999, cursor: 'pointer',
-          background: 'radial-gradient(ellipse 70% 60% at 50% 40%, rgba(124,109,250,0.25) 0%, #0a0a0f 70%)',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24,
-        }}
-        onClick={handleFinish}
-      >
-        <div style={{
-          width: 120, height: 120, borderRadius: '50%', overflow: 'hidden',
-          boxShadow: '0 0 60px rgba(124,109,250,0.6), 0 0 120px rgba(124,109,250,0.2)',
-          animation: 'lunaPulse 2s ease-in-out infinite',
-        }}>
-          <img src="/luna-logo.png" alt="LUNA" width={120} height={120} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-        </div>
-        <div style={{
-          fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 48, letterSpacing: -2,
-          background: 'linear-gradient(135deg, #c084fc, #818cf8, #60a5fa)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-        }}>LUNA</div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          {[0,1,2].map(i => (
-            <div key={i} style={{
-              width: 10, height: 10, borderRadius: '50%', background: '#a78bfa',
-              animation: `lunaWave 1.2s ease-in-out ${i * 0.2}s infinite`,
-            }} />
-          ))}
-        </div>
-        <style>{`
-          @keyframes lunaPulse {
-            0%,100%{box-shadow:0 0 60px rgba(124,109,250,0.6),0 0 120px rgba(124,109,250,0.2)}
-            50%{box-shadow:0 0 80px rgba(124,109,250,0.9),0 0 160px rgba(124,109,250,0.35)}
-          }
-          @keyframes lunaWave {
-            0%,100%{transform:scaleY(0.5);opacity:0.5}
-            50%{transform:scaleY(1.8);opacity:1}
-          }
-        `}</style>
-      </div>
-    )
-  }
-
   return (
     <div
-      style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#000', cursor: 'pointer' }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999, cursor: 'pointer',
+        background: '#0a0a0f',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 28,
+      }}
       onClick={handleFinish}
     >
-      <video
-        src="/luna-intro.mp4"
-        autoPlay
-        playsInline
-        onEnded={handleFinish}
-        onError={() => setVideoError(true)}
-        style={{ width: '100vw', height: '100vh', objectFit: 'cover', display: 'block' }}
-      />
+      {/* Glow de fundo */}
+      <div style={{
+        position: 'absolute', top: '30%', left: '50%', transform: 'translateX(-50%)',
+        width: 500, height: 400,
+        background: 'radial-gradient(ellipse, rgba(124,109,250,0.2) 0%, transparent 70%)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* Logo pulsando */}
+      <div style={{
+        width: 130, height: 130, borderRadius: '50%', overflow: 'hidden', position: 'relative',
+        boxShadow: '0 0 50px rgba(124,109,250,0.7), 0 0 100px rgba(124,109,250,0.3)',
+        animation: 'lunaPulse 2s ease-in-out infinite',
+        zIndex: 1,
+      }}>
+        <img src="/luna-logo.png" alt="LUNA" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      </div>
+
+      {/* Nome */}
+      <div style={{
+        fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 52,
+        letterSpacing: -2, zIndex: 1,
+        background: 'linear-gradient(135deg, #c084fc, #818cf8, #60a5fa)',
+        WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+      }}>
+        LUNA
+      </div>
+
+      {/* Indicador de audio */}
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', zIndex: 1 }}>
+        {[0,1,2,3,4].map(i => (
+          <div key={i} style={{
+            width: 4, height: 20, borderRadius: 4, background: '#a78bfa',
+            animation: `lunaBar 1s ease-in-out ${i * 0.12}s infinite`,
+          }} />
+        ))}
+      </div>
+
+      <style>{`
+        @keyframes lunaPulse {
+          0%,100%{box-shadow:0 0 50px rgba(124,109,250,0.7),0 0 100px rgba(124,109,250,0.3)}
+          50%{box-shadow:0 0 80px rgba(124,109,250,1),0 0 160px rgba(124,109,250,0.5)}
+        }
+        @keyframes lunaBar {
+          0%,100%{transform:scaleY(0.4);opacity:0.4}
+          50%{transform:scaleY(1);opacity:1}
+        }
+      `}</style>
     </div>
   )
 }
