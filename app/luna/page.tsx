@@ -24,7 +24,7 @@ export default function LUNAPage() {
 
   const [s,     setS]    = useState<S>('idle')
   const [msgs,  setMsgs] = useState<Msg[]>([{id:uid(),role:'luna',time:tstr(),
-    text:`OlÃÂÃÂÃÂÃÂ¡${userProfile?', '+(userProfile.given_name||userProfile.name):''}! Pressione o botÃÂÃÂÃÂÃÂ£o do microfone ou EspaÃÂÃÂÃÂÃÂ§o para falar.`}])
+    text:`Ola${userProfile?', '+(userProfile.given_name||userProfile.name):''}! Pressione o botao do microfone ou Espaco para falar.`}])
   const [live,  setLive]  = useState('')
   const [input, setInput] = useState('')
 
@@ -123,7 +123,7 @@ export default function LUNAPage() {
 
     rec.onerror = (e:any)=>{
       stopMic()
-      if(e.error === 'not-allowed') showToast('Permita o microfone: clique no cadeado na barra de endereÃÂÃÂÃÂÃÂ§o.')
+      if(e.error === 'not-allowed') showToast('Permita o microfone: clique no cadeado na barra de endereco.')
       else if(e.error !== 'no-speech' && e.error !== 'aborted') showToast('Erro mic: '+e.error)
     }
 
@@ -199,8 +199,8 @@ export default function LUNAPage() {
       if(tag) showToast(tag)
       speak(reply)
     } catch {
-      setMsgs(p=>[...p,{id:uid(),role:'luna',text:'Erro de conexÃÂÃÂÃÂÃÂ£o.',time:tstr()}])
-      speak('Erro de conexÃÂÃÂÃÂÃÂ£o.')
+      setMsgs(p=>[...p,{id:uid(),role:'luna',text:'Erro de conexao.',time:tstr()}])
+      speak('Erro de conexao.')
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[calendarEvents,chatHistory,userProfile,lang,geminiKey,accessToken,speak,addMessage,showToast])
