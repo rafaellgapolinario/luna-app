@@ -152,14 +152,28 @@ export default function LUNAPage() {
   }, [lang, userProfile, geminiKey, calendarEvents, accessToken, chatHistory, addMsg, speak, showToast])
 
 
-  // Mic usa Web Speech API diretamente - sem servidor
-  const startMic = useCallback(() => {
+  const startWebSpeech = useCallback(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SpeechRecognition) { addMsg('luna', 'Reconhecimento de voz nao suportado. Use Chrome.'); return }
+    const recog = new SpeechRecognition()
+    recog.lang = lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'pt-BR'
+    recog.continuous = false
+    recog.interimResults = false
+    recog.onstart = () => setS('listening')
+    recog.onresult = (e: any) => {
+      const text = e.results[0]?.[0]?.transcript || ''
+      if (text) sendToLuna(text)
+      else setS('idle')
+    }
+    recog.onerror = () => setS('idle')
+    recog.onend = () => { if (sRef.current === 'listening') setS('idle') }
+    recog.start()
+  }, [lang, sendToLuna, addMsg])
+
+    const startMic = useCallback(() => {
     if (sRef.current !== 'idle') return
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (!SR) {
-      addMsg('luna', 'Reconhecimento de voz nao suportado. Use Chrome.')
-      return
-    }
+    if (!SR) { addMsg('luna', 'Use Chrome ou Edge para reconhecimento de voz.'); return }
     const recog = new SR()
     recog.lang = lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'pt-BR'
     recog.continuous = false
@@ -173,7 +187,6 @@ export default function LUNAPage() {
     }
     recog.onspeechend = () => recog.stop()
     recog.onerror = (e: any) => {
-      console.error('SpeechRecognition error:', e.error)
       if (e.error === 'not-allowed') addMsg('luna', 'Permita o microfone nas configuracoes do navegador.')
       setS('idle')
     }
@@ -186,27 +199,6 @@ export default function LUNAPage() {
     if (recRef.current) { (recRef.current as any).stop?.(); recRef.current = null }
     if (sRef.current === 'listening') setS('idle')
   }, [])
-
-, [])
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && document.activeElement?.tagName !== 'INPUT') {
-        e.preventDefault()
-        if (!hasSentRef.current) {
-          hasSentRef.current = true
-          if (sRef.current === 'idle') startMic()
-          else if (sRef.current === 'listening') stopMic()
-        }
-      }
-    }
-    const onKeyUp = (e: KeyboardEvent) => {
-      if (e.code === 'Space') hasSentRef.current = false
-    }
-    window.addEventListener('keydown', onKey)
-    window.addEventListener('keyup', onKeyUp)
-    return () => { window.removeEventListener('keydown', onKey); window.removeEventListener('keyup', onKeyUp) }
-  }, [startMic, stopMic])
 
   async function handleSend() {
     if (!input.trim()) return
@@ -237,36 +229,34 @@ export default function LUNAPage() {
         {/* Ambient glow */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: `radial-gradient(ellipse 60% 40% at 50% 50%,${col}0e 0%,transparent 70%)`, transition: 'background 0.5s', zIndex: 0 }} />
 
-        {/* JARVIS EFFECT - efeito visual quando mic ativo */}
         {(s === 'listening' || s === 'thinking' || s === 'speaking') && (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', zIndex: 40 }}>
-            <div style={{ position: 'relative', width: 280, height: 280 }}>
-              <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid ' + (s==='listening'?'rgba(248,113,113,0.7)':s==='thinking'?'rgba(245,158,11,0.7)':'rgba(34,211,160,0.7)'), animation: 'jR1 2s ease-in-out infinite' }} />
-              <div style={{ position: 'absolute', inset: 20, borderRadius: '50%', border: '1px solid ' + (s==='listening'?'rgba(248,113,113,0.4)':s==='thinking'?'rgba(245,158,11,0.4)':'rgba(34,211,160,0.4)'), animation: 'jR2 2s ease-in-out infinite 0.25s' }} />
-              <div style={{ position: 'absolute', inset: 40, borderRadius: '50%', border: '1px solid ' + (s==='listening'?'rgba(248,113,113,0.25)':s==='thinking'?'rgba(245,158,11,0.25)':'rgba(34,211,160,0.25)'), animation: 'jR1 2s ease-in-out infinite 0.5s' }} />
-              <div style={{ position: 'absolute', inset: 60, borderRadius: '50%', border: '1px solid ' + (s==='listening'?'rgba(248,113,113,0.15)':s==='thinking'?'rgba(245,158,11,0.15)':'rgba(34,211,160,0.15)'), animation: 'jR2 2.5s ease-in-out infinite 0.75s' }} />
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ width: 90, height: 90, borderRadius: '50%', background: 'radial-gradient(circle, ' + (s==='listening'?'rgba(248,113,113,0.25)':s==='thinking'?'rgba(245,158,11,0.25)':'rgba(34,211,160,0.25)') + ' 0%, transparent 70%)', animation: 'jCore 1.5s ease-in-out infinite', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ display: 'flex', gap: 4, alignItems: 'center', height: 36 }}>
+          <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', pointerEvents:'none', zIndex:40 }}>
+            <div style={{ position:'relative', width:260, height:260 }}>
+              <div style={{ position:'absolute', inset:0, borderRadius:'50%', border:'2px solid '+(s==='listening'?'rgba(248,113,113,0.8)':s==='thinking'?'rgba(245,158,11,0.8)':'rgba(34,211,160,0.8)'), animation:'jR1 2s ease-in-out infinite' }} />
+              <div style={{ position:'absolute', inset:18, borderRadius:'50%', border:'1px solid '+(s==='listening'?'rgba(248,113,113,0.5)':s==='thinking'?'rgba(245,158,11,0.5)':'rgba(34,211,160,0.5)'), animation:'jR2 2s ease-in-out infinite 0.25s' }} />
+              <div style={{ position:'absolute', inset:36, borderRadius:'50%', border:'1px solid '+(s==='listening'?'rgba(248,113,113,0.3)':s==='thinking'?'rgba(245,158,11,0.3)':'rgba(34,211,160,0.3)'), animation:'jR1 2.5s ease-in-out infinite 0.5s' }} />
+              <div style={{ position:'absolute', inset:54, borderRadius:'50%', border:'1px solid '+(s==='listening'?'rgba(248,113,113,0.15)':s==='thinking'?'rgba(245,158,11,0.15)':'rgba(34,211,160,0.15)'), animation:'jR2 3s ease-in-out infinite 0.7s' }} />
+              <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <div style={{ width:88, height:88, borderRadius:'50%', background:'radial-gradient(circle,'+(s==='listening'?'rgba(248,113,113,0.2)':s==='thinking'?'rgba(245,158,11,0.2)':'rgba(34,211,160,0.2)')+' 0%,transparent 70%)', animation:'jCore 1.5s ease-in-out infinite', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  <div style={{ display:'flex', gap:4, alignItems:'center', height:36 }}>
                     {[0,1,2,3,4,5,6].map(i => (
-                      <div key={i} style={{ width: 3, borderRadius: 99, background: s==='listening'?'#f87171':s==='thinking'?'#f59e0b':'#22d3a0', animation: 'jBar 0.9s ease-in-out ' + (i*0.1) + 's infinite' }} />
+                      <div key={i} style={{ width:3, borderRadius:99, background:s==='listening'?'#f87171':s==='thinking'?'#f59e0b':'#22d3a0', animation:'jBar 0.9s ease-in-out '+(i*0.1)+'s infinite', minHeight:4 }} />
                     ))}
                   </div>
                 </div>
               </div>
-              <div style={{ position: 'absolute', bottom: -44, left: '50%', transform: 'translateX(-50%)', fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', color: s==='listening'?'#f87171':s==='thinking'?'#f59e0b':'#22d3a0', whiteSpace: 'nowrap' }}>
+              <div style={{ position:'absolute', bottom:-40, left:'50%', transform:'translateX(-50%)', fontSize:11, fontWeight:700, letterSpacing:3, textTransform:'uppercase', color:s==='listening'?'#f87171':s==='thinking'?'#f59e0b':'#22d3a0', whiteSpace:'nowrap' }}>
                 {s==='listening'?'Ouvindo...':s==='thinking'?'Processando...':'LUNA falando...'}
               </div>
             </div>
             <style>{`
-              @keyframes jR1 { 0%,100%{transform:scale(1);opacity:0.7} 50%{transform:scale(1.1);opacity:1} }
-              @keyframes jR2 { 0%,100%{transform:scale(1.05);opacity:0.5} 50%{transform:scale(0.95);opacity:0.9} }
-              @keyframes jCore { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
-              @keyframes jBar { 0%,100%{height:6px;opacity:0.3} 50%{height:32px;opacity:1} }
+              @keyframes jR1{0%,100%{transform:scale(1);opacity:0.7}50%{transform:scale(1.1);opacity:1}}
+              @keyframes jR2{0%,100%{transform:scale(1.06);opacity:0.5}50%{transform:scale(0.95);opacity:0.9}}
+              @keyframes jCore{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+              @keyframes jBar{0%,100%{height:4px;opacity:0.3}50%{height:32px;opacity:1}}
             `}</style>
           </div>
         )}
-
         {/* Header */}
         <div style={{ padding: '12px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, zIndex: 1, position: 'relative' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
