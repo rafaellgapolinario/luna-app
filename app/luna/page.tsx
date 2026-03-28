@@ -56,7 +56,7 @@ export default function LUNAPage() {
     else { window.speechSynthesis.onvoiceschanged = go }
   },[])
 
-  // ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Speak ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ
+  // ── Speak ─────────────────────────────────────────────────────────────────
   const speak = useCallback(async (text:string, onEnd?:()=>void)=>{
     setS('speaking')
     try {
@@ -169,11 +169,11 @@ export default function LUNAPage() {
             }
           }
         }
-        data = { reply: fullText || 'Não consegui processar.' }
+        data = { reply: fullText || 'Nao consegui processar.' }
       } else {
         data = await res.json()
       }
-      const reply: string = data.reply || 'Não consegui processar.'
+      const reply: string = data.reply || 'Nao consegui processar.'
       let tag=''
 
       // Save note if created
@@ -249,7 +249,7 @@ export default function LUNAPage() {
         <div style={{padding:'12px 24px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0,zIndex:1,position:'relative'}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             <div style={{width:8,height:8,borderRadius:'50%',background:col,boxShadow:`0 0 8px ${col}`,transition:'background 0.3s',animation:isActive?'pulse 1.5s infinite':'none'}}/>
-            <span style={{fontFamily:'Syne',fontSize:15,fontWeight:700}}>LUNA · Assistente</span>
+          <span style={{fontFamily:'Syne',fontSize:15,fontWeight:700}}>LUNA - Assistente</span>
           </div>
           <span style={{fontSize:12,color:col,fontWeight:600,transition:'color 0.3s'}}>{statusLabel}</span>
         </div>
@@ -366,7 +366,7 @@ export default function LUNAPage() {
             ))}
           </div>
           <div style={{textAlign:'center',marginTop:6,fontSize:10,color:'var(--text3)'}}>
-            <kbd style={{background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:3,padding:'1px 5px'}}>Espaco</kbd> ativar mic ÃÂÃÂÃÂÃÂ·
+            <kbd style={{background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:3,padding:'1px 5px'}}>Espaco</kbd> ativar mic
             <kbd style={{background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:3,padding:'1px 5px',margin:'0 3px'}}>Esc</kbd> parar
           </div>
         </div>
