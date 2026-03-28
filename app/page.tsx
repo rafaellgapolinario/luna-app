@@ -115,7 +115,7 @@ export default function LandingPage() {
         'Google Calendar completo',
         'Hábitos ilimitados + streaks',
         'Finanças com relatórios',
-        'WhatsApp integrado (Z-API)',
+        'WhatsApp integrado',
         'Automações Se → Então',
         'Notas com IA',
         'Suporte prioritário',
@@ -128,11 +128,11 @@ export default function LandingPage() {
   ]
 
   const faqs = [
-    { q: 'Funciona no celular?', a: 'Sim. Luna é um PWA — você instala direto do navegador no celular. Também tem integração nativa com WhatsApp para usar sem abrir o app.' },
-    { q: 'Preciso conectar o Google Calendar?', a: 'Não é obrigatório, mas recomendado. Sem ele, Luna ainda funciona para IA, hábitos e finanças.' },
-    { q: 'Como funciona o WhatsApp?', a: 'Usamos a Z-API para integrar seu número ao Luna. Você configura uma vez e passa a conversar com Luna pelo próprio WhatsApp.' },
-    { q: 'Posso cancelar a qualquer momento?', a: 'Sim. Sem multa, sem fidelidade. Cancele quando quiser pelo painel de configurações.' },
-    { q: 'Meus dados são seguros?', a: 'Sim. Todos os dados são criptografados e armazenados no Supabase. Nunca vendemos ou compartilhamos suas informações.' },
+    { q: 'Funciona no celular?', a: 'Sim. Luna e um PWA - voce instala direto do navegador no celular. Tambem tem integracao nativa com WhatsApp para usar sem abrir o app.' },
+    { q: 'Preciso conectar o Google Calendar?', a: 'Nao e obrigatorio, mas recomendado. Sem ele, Luna ainda funciona para IA, habitos e financas.' },
+    { q: 'Como funciona o WhatsApp?', a: 'Voce conecta seu numero ao Luna uma vez so. Depois passa a conversar com Luna pelo proprio WhatsApp normalmente.' },
+    { q: 'Posso cancelar a qualquer momento?', a: 'Sim. Sem multa, sem fidelidade. Cancele quando quiser pelo painel de configuracoes.' },
+    { q: 'Meus dados sao seguros?', a: 'Sim. Todos os dados sao criptografados e armazenados com seguranca. Nunca vendemos ou compartilhamos suas informacoes.' },
   ]
 
   return (
@@ -217,20 +217,36 @@ export default function LandingPage() {
           <span style={{ fontSize: 12, fontWeight: 600, color: '#a78bfa', letterSpacing: 0.5 }}>Assistente pessoal com IA</span>
         </div>
 
+        {/* Video YouTube grande */}
+        <div style={{
+          width: '100%', maxWidth: 900, marginBottom: 56, position: 'relative', zIndex: 1,
+          borderRadius: 20, overflow: 'hidden',
+          boxShadow: '0 0 0 1px rgba(124,109,250,0.2), 0 40px 80px rgba(0,0,0,0.5)',
+          aspectRatio: '16/9',
+        }}>
+          <iframe
+            src="https://www.youtube.com/embed/7QmJEq5j9rQ?autoplay=0&rel=0&modestbranding=1"
+            title="LUNA - Assistente com IA"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+          />
+        </div>
+
         <h1 style={{
           fontFamily: 'Syne', fontWeight: 700, fontSize: 'clamp(36px,5vw,64px)',
           lineHeight: 1.05, letterSpacing: -1, marginBottom: 24, maxWidth: 900,
           background: 'linear-gradient(135deg,#f0f0f8 30%,rgba(167,139,250,0.8))',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>
-          Sua vida organizada.<br />Sem esforço.
+          Sua vida organizada.<br />Sem esforco.
         </h1>
 
         <p style={{
           fontSize: 18, color: 'rgba(255,255,255,0.5)', maxWidth: 520,
           lineHeight: 1.7, marginBottom: 40,
         }}>
-          Luna integra agenda, hábitos, finanças e WhatsApp em um assistente inteligente que entende linguagem natural e organiza tudo por você.
+          Luna integra agenda, habitos, financas e WhatsApp em um assistente inteligente que entende linguagem natural e organiza tudo por voce.
         </p>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -242,7 +258,7 @@ export default function LandingPage() {
             boxShadow: '0 0 30px rgba(124,109,250,0.4)',
             display: 'flex', alignItems: 'center', gap: 8,
           }}>
-            Começar grátis
+            Comecar gratis
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth="2.5">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
@@ -259,7 +275,7 @@ export default function LandingPage() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginTop: 56, flexWrap: 'wrap', justifyContent: 'center' }}>
           {[
-            { label: 'Gratuito para começar' },
+            { label: 'Gratuito para comecar' },
             { label: 'Google Calendar integrado' },
             { label: 'WhatsApp nativo' },
           ].map(({ label }) => (
