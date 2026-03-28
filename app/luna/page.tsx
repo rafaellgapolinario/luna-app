@@ -187,11 +187,7 @@ export default function LUNAPage() {
     if (sRef.current === 'listening') setS('idle')
   }, [])
 
-  const stopMic = useCallback(() => {
-    if (recRef.current && recRef.current.state === 'recording') {
-      recRef.current.stop()
-    }
-  }, [])
+, [])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
