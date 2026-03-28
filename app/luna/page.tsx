@@ -222,6 +222,19 @@ export default function LUNAPage() {
     ['Semana', 'Resumo da minha semana'],
   ]
 
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.code === 'Space' && e.target === document.body) {
+        e.preventDefault()
+        if (sRef.current === 'listening') stopMic()
+        else if (sRef.current === 'idle') startMic()
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [startMic, stopMic])
+
   return (
     <AppShell>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg)', overflow: 'hidden', position: 'relative' }}>
@@ -310,9 +323,13 @@ export default function LUNAPage() {
           {/* Mic button */}
           <button
             onClick={() => s === 'listening' ? stopMic() : startMic()}
-            style={{ width: 48, height: 48, borderRadius: '50%', border: 'none', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, background: s === 'listening' ? '#f87171' : s === 'speaking' ? col : 'var(--surface)', boxShadow: isActive ? `0 0 20px ${col}66` : 'none', transition: 'all 0.2s' }}
+            title={s === 'listening' ? 'Parar' : 'Falar (ou pressione Espaco)'}
+            style={{ width: 52, height: 52, borderRadius: '50%', border: '2px solid '+(s==='listening'?'#f87171':s==='thinking'?'#f59e0b':isActive?col:'var(--border)'), cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: s === 'listening' ? 'rgba(248,113,113,0.15)' : s === 'speaking' ? 'rgba(34,211,160,0.1)' : 'var(--surface)', boxShadow: isActive ? '0 0 20px '+col+'66' : 'none', transition: 'all 0.2s' }}
           >
-            {s === 'listening' ? '' : ''}
+            {s === 'listening'
+              ? <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{color:'#f87171'}}><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+              : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{color: isActive ? col : 'var(--text2)'}}><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            }
           </button>
 
           {/* Text input */}
