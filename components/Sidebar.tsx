@@ -6,16 +6,28 @@ import NexusIcon from './NexusIcon'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
+const NAV_LABELS: Record<string, Record<string, string>> = {
+  '/luna':        { pt: 'LUNA',          en: 'LUNA',         es: 'LUNA' },
+  '/finances':    { pt: 'Financas',      en: 'Finances',     es: 'Finanzas' },
+  '/habits':      { pt: 'Habitos',       en: 'Habits',       es: 'Habitos' },
+  '/notes':       { pt: 'Anotacoes',     en: 'Notes',        es: 'Notas' },
+  '/calendar':    { pt: 'Agenda',        en: 'Calendar',     es: 'Agenda' },
+  '/whatsapp':    { pt: 'WhatsApp',      en: 'WhatsApp',     es: 'WhatsApp' },
+  '/automations': { pt: 'Automacoes',    en: 'Automations',  es: 'Automatizaciones' },
+  '/plans':       { pt: 'Planos',        en: 'Plans',        es: 'Planes' },
+  '/settings':    { pt: 'Configuracoes', en: 'Settings',     es: 'Ajustes' },
+}
+
 const NAV = [
-  { href: '/luna',        label: null, staticLabel: 'LUNA',         icon: MicIcon,      highlight: true },
-  { href: '/finances',    label: null, staticLabel: 'Financas',      icon: CardIcon },
-  { href: '/habits',      label: null, staticLabel: 'Habitos',       icon: BoltIcon },
-  { href: '/notes',       label: null, staticLabel: 'Anotacoes',     icon: NotesIcon },
-  { href: '/calendar',    label: 'nav_calendar' as const,              icon: CalendarIcon },
-  { href: '/whatsapp',    label: 'nav_whatsapp' as const,              icon: WAIcon },
-  { href: '/automations', label: null, staticLabel: 'Automacoes',    icon: BoltIcon },
-  { href: '/plans',       label: null, staticLabel: 'Planos',          icon: CardIcon },
-  { href: '/settings',    label: 'nav_settings' as const,              icon: SettingsIcon },
+  { href: '/luna',        highlight: true },
+  { href: '/finances' },
+  { href: '/habits' },
+  { href: '/notes' },
+  { href: '/calendar' },
+  { href: '/whatsapp' },
+  { href: '/automations' },
+  { href: '/plans' },
+  { href: '/settings' },
 ]
 
 const PLAN_COLORS = {
@@ -24,6 +36,18 @@ const PLAN_COLORS = {
   business: { label: 'Business', bg: 'rgba(245,158,11,0.15)', color: '#f59e0b' },
 }
 
+
+const NavIcons: Record<string, () => JSX.Element> = {
+  '/luna': MicIcon,
+  '/finances': CardIcon,
+  '/habits': BoltIcon,
+  '/notes': NotesIcon,
+  '/calendar': CalendarIcon,
+  '/whatsapp': WAIcon,
+  '/automations': BoltIcon,
+  '/plans': CardIcon,
+  '/settings': SettingsIcon,
+}
 export function Sidebar() {
   const [collapsed, setCollapsed] = React.useState(false)
   const { lang, userProfile, currentPlan } = useStore(s => ({
@@ -49,9 +73,10 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav style={{ flex: 1 }}>
-        {NAV.map(({ href, label, staticLabel, icon: Icon, highlight }) => {
+        {NAV.map(({ href, highlight }) => {
+          const Icon = NavIcons[href] || MicIcon
           const active = pathname === href
-          const text = label ? t(lang, label) : (staticLabel ?? '')
+          const text = NAV_LABELS[href]?.[lang] ?? NAV_LABELS[href]?.['pt'] ?? href
           return (
             <Link key={href} href={href} style={{
               display: 'flex', alignItems: 'center', gap: 12, padding: '11px 20px',
