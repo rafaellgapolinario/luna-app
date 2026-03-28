@@ -82,15 +82,65 @@ async function saveMsg(userId: string, role: string, conteudo: string, convId?: 
 export async function POST(req: NextRequest) {
   let body: any = {}
   try { body = await req.json() } catch { return Response.json({ reply: 'Requisicao invalida.' }, { status: 400 }) }
-  const { messages = [], userName, lang = 'pt', calendarContext, geminiKey, voiceMode, accessToken, userId, conversationId } = body
-  const lastMsg = messages[messages.length - 1]?.content || ''
+
+  const {
+    // Formato novo
+    messages: messagesNew,
+    // Formato antigo (luna/page.tsx)
+    message: messageSingle,
+    history,
+    calendarSummary,
+    calendarContext,
+    userProfile,
+    // Campos comuns
+    userName,
+    lang = 'pt',
+    geminiKey,
+    voiceMode,
+    accessToken,
+    userId,
+    conversationId,
+  } = body
+
+  // Normalizar para formato messages[]
+  let messages: Message[] = []
+  let lastMsg = ''
+
+  if (messagesNew && Array.isArray(messagesNew) && messagesNew.length > 0) {
+    // Formato novo: messages = [{role, content}]
+    messages = messagesNew
+    lastMsg = messages[messages.length - 1]?.content || ''
+  } else if (messageSingle) {
+    // Formato antigo: message + history (com parts)
+    const histMsgs: Message[] = (history || []).map((h: any) => ({
+      role: h.role === 'model' ? 'assistant' : 'user',
+      content: h.parts?.[0]?.text || h.content || '',
+    })).filter((m: Message) => m.content)
+    messages = [...histMsgs, { role: 'user', content: messageSingle }]
+    lastMsg = messageSingle
+  }
+
   if (!lastMsg) return Response.json({ reply: 'Mensagem vazia.' })
 
-  const intent = detectIntent(lastMsg)
-  const now = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-  const calInfo = calendarContext ? 'AGENDA REAL:\n' + calendarContext + '\nNUNCA invente eventos.' : 'AGENDA: Nao carregada ainda.'
-  const voiceRule = voiceMode ? 'MODO VOZ: Maximo 2 frases curtas. Sem markdown, listas ou emojis.' : 'Formatacao markdown permitida.'
+  // Nome do usuario
+  const name = userName || userProfile?.given_name || userProfile?.name || 'usuario'
+  // Contexto da agenda
+  const calInfo = (calendarContext || calendarSummary)
+    ? 'AGENDA REAL:\n' + (calendarContext || calendarSummary) + '\nNUNCA invente eventos.'
+    : 'AGENDA: Nao carregada.'
+  const voiceRule = voiceMode
+    ? 'MODO VOZ: Maximo 2 frases curtas. Sem markdown, listas ou emojis.'
+    : 'Formatacao markdown permitida.'
 
+  const now = new Date().toLocaleString('pt-BR', {
+    timeZone: 'America/Sao_Paulo', weekday: 'long',
+    day: '2-digit', month: 'long', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  })
+
+  const intent = detectIntent(lastMsg)
+
+  // Salvar mensagem do usuario
   let cid = conversationId
   if (userId) cid = await saveMsg(userId, 'user', lastMsg, cid) || cid
 
@@ -104,11 +154,17 @@ export async function POST(req: NextRequest) {
         const gcal = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
           method: 'POST',
           headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ summary: parsed.summary, description: parsed.description, start: { dateTime: parsed.start, timeZone: 'America/Sao_Paulo' }, end: { dateTime: parsed.end, timeZone: 'America/Sao_Paulo' } }),
+          body: JSON.stringify({
+            summary: parsed.summary, description: parsed.description,
+            start: { dateTime: parsed.start, timeZone: 'America/Sao_Paulo' },
+            end: { dateTime: parsed.end, timeZone: 'America/Sao_Paulo' },
+          }),
         })
         if (gcal.ok) {
           const dt = new Date(parsed.start).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
-          const reply = voiceMode ? 'Evento criado: ' + parsed.summary : '[OK] Evento criado!\n\n**' + parsed.summary + '**\nData: ' + dt
+          const reply = voiceMode
+            ? 'Evento criado: ' + parsed.summary
+            : '[OK] Evento criado!\n\n**' + parsed.summary + '**\nData: ' + dt
           if (userId) await saveMsg(userId, 'assistant', reply, cid)
           return Response.json({ reply, eventCreated: true, conversationId: cid })
         }
@@ -124,7 +180,9 @@ export async function POST(req: NextRequest) {
       const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim())
       if (userId) await supabase.from('notes').insert({ user_id: userId, tipo: parsed.tipo || 'nota', titulo: parsed.titulo || '', conteudo: parsed.conteudo || lastMsg, lembrete_em: parsed.lembrete_em || null })
       const label = parsed.tipo === 'tarefa' ? 'Tarefa criada' : parsed.tipo === 'lembrete' ? 'Lembrete criado' : 'Anotado'
-      const reply = voiceMode ? label + ': ' + (parsed.titulo || parsed.conteudo?.substring(0, 40)) : '[OK] **' + label + '!**\n\n**' + (parsed.titulo || '') + '**\n' + parsed.conteudo
+      const reply = voiceMode
+        ? label + ': ' + (parsed.titulo || parsed.conteudo?.substring(0, 40))
+        : '[OK] **' + label + '!**\n\n**' + (parsed.titulo || '') + '**\n' + parsed.conteudo
       if (userId) await saveMsg(userId, 'assistant', reply, cid)
       return Response.json({ reply, noteCreated: true, conversationId: cid })
     } catch (e) { console.error('save_note:', e) }
@@ -137,7 +195,9 @@ export async function POST(req: NextRequest) {
       const raw = await callAI([{ role: 'user', content: lastMsg }], sys, geminiKey)
       const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim())
       if (userId) await supabase.from('habits').insert({ user_id: userId, nome: parsed.nome || '', frequencia: parsed.frequencia || 'diario', meta_dias: parsed.meta_dias || 30 })
-      const reply = voiceMode ? 'Habito criado: ' + parsed.nome : '[OK] **Habito criado!**\n\n**' + parsed.nome + '**\nFrequencia: ' + parsed.frequencia + '\nMeta: ' + parsed.meta_dias + ' dias'
+      const reply = voiceMode
+        ? 'Habito criado: ' + parsed.nome
+        : '[OK] **Habito criado!**\n\n**' + parsed.nome + '**\nFrequencia: ' + parsed.frequencia + '\nMeta: ' + parsed.meta_dias + ' dias'
       if (userId) await saveMsg(userId, 'assistant', reply, cid)
       return Response.json({ reply, habitCreated: true, conversationId: cid })
     } catch (e) { console.error('save_habit:', e) }
@@ -150,20 +210,22 @@ export async function POST(req: NextRequest) {
       const raw = await callAI([{ role: 'user', content: lastMsg }], sys, geminiKey)
       const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim())
       if (userId) await supabase.from('finances').insert({ user_id: userId, tipo: parsed.tipo || 'gasto', valor: parsed.valor || 0, categoria: parsed.categoria || 'outro', descricao: parsed.descricao || '', data: parsed.data || new Date().toISOString().split('T')[0] })
-      const reply = voiceMode ? (parsed.tipo === 'receita' ? 'Receita' : 'Gasto') + ' de R$ ' + parsed.valor + ' registrado' : '[OK] **' + (parsed.tipo === 'receita' ? 'Receita' : 'Gasto') + ' registrado!**\n\nValor: **R$ ' + parsed.valor + '**\nCategoria: ' + parsed.categoria + '\n' + parsed.descricao
+      const reply = voiceMode
+        ? (parsed.tipo === 'receita' ? 'Receita' : 'Gasto') + ' de R$ ' + parsed.valor + ' registrado'
+        : '[OK] **' + (parsed.tipo === 'receita' ? 'Receita' : 'Gasto') + ' registrado!**\n\nValor: **R$ ' + parsed.valor + '**\nCategoria: ' + parsed.categoria + '\n' + parsed.descricao
       if (userId) await saveMsg(userId, 'assistant', reply, cid)
       return Response.json({ reply, financeCreated: true, conversationId: cid })
     } catch (e) { console.error('save_finance:', e) }
   }
 
   // CHAT NORMAL
-  const system = 'Voce e LUNA, assistente pessoal de ' + (userName || 'usuario') + '. Responda APENAS em ' + (lang === 'en' ? 'English' : lang === 'es' ? 'espanol' : 'portugues brasileiro') + '. Data: ' + now + '\n' + voiceRule + '\n' + calInfo
+  const system = 'Voce e LUNA, assistente pessoal de ' + name + '. Responda APENAS em ' + (lang === 'en' ? 'English' : lang === 'es' ? 'espanol' : 'portugues brasileiro') + '. Data: ' + now + '\n' + voiceRule + '\n' + calInfo
   try {
     const reply = await callAI(messages, system, geminiKey)
     if (userId) await saveMsg(userId, 'assistant', reply, cid)
     return Response.json({ reply, conversationId: cid })
   } catch (e) {
     console.error('chat error:', e)
-    return Response.json({ reply: 'Erro ao processar. Verifique sua conexao.' })
+    return Response.json({ reply: 'Erro ao processar. Verifique sua conexao e tente novamente.' })
   }
 }
