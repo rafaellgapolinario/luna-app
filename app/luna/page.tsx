@@ -151,7 +151,26 @@ export default function LUNAPage() {
     }
   }, [lang, userProfile, geminiKey, calendarEvents, accessToken, chatHistory, addMsg, speak, showToast])
 
-  const startMic = useCallback(async () => {
+
+  const startWebSpeech = useCallback(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SpeechRecognition) { addMsg('luna', 'Reconhecimento de voz nao suportado. Use Chrome.'); return }
+    const recog = new SpeechRecognition()
+    recog.lang = lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'pt-BR'
+    recog.continuous = false
+    recog.interimResults = false
+    recog.onstart = () => setS('listening')
+    recog.onresult = (e: any) => {
+      const text = e.results[0]?.[0]?.transcript || ''
+      if (text) sendToLuna(text)
+      else setS('idle')
+    }
+    recog.onerror = () => setS('idle')
+    recog.onend = () => { if (sRef.current === 'listening') setS('idle') }
+    recog.start()
+  }, [lang, sendToLuna, addMsg])
+
+    const startMic = useCallback(async () => {
     if (sRef.current !== 'idle') return
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -169,8 +188,15 @@ export default function LUNAPage() {
         try {
           const res = await fetch('/api/stt', { method: 'POST', body: fd })
           const d = await res.json()
-          if (d.text) await sendToLuna(d.text)
-          else setS('idle')
+          if (d.text) {
+            await sendToLuna(d.text)
+          } else if (d.useWebSpeech) {
+            // Fallback: Web Speech API (nao precisa de servidor)
+            setS('idle')
+            startWebSpeech()
+          } else {
+            setS('idle')
+          }
         } catch { setS('idle') }
       }
       recRef.current = rec
