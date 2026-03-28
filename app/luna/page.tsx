@@ -10,7 +10,7 @@ function uid()  { return Math.random().toString(36).slice(2) }
 function tstr() { return new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) }
 function cleanTTS(t:string) {
   return t.replace(/\*\*(.*?)\*\*/g,'$1').replace(/#{1,6}\s/g,'')
-    .replace(/[ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ°ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ¡ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ¥ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¡ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ¡ÃÂÃÂ¯ÃÂÃÂ¸ÃÂÃÂ]/g,'').substring(0,350)
+    .replace(/[\u{1F300}-\u{1FFFF}\u2600-\u27BF]/gu,'').substring(0,350)
 }
 
 const COL:Record<S,string> = { idle:'#7c6dfa', listening:'#f87171', thinking:'#f59e0b', speaking:'#22d3a0' }
