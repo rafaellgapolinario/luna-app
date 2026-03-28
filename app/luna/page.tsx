@@ -125,7 +125,7 @@ export default function LUNAPage() {
       addMsg('luna', (tag ? tag + ' ' : '') + reply)
       setS('idle')
       speak(reply)
-      if (tag) showToast(tag, 'success')
+      if (tag) showToast(tag)
     } catch (e) {
       addMsg('luna', 'Erro de conexao.')
       setS('idle')
@@ -232,11 +232,11 @@ export default function LUNAPage() {
           {msgs.map(msg => (
             <div key={msg.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', flexDirection: msg.role === 'user' ? 'row-reverse' : 'row' }}>
               <div style={{ width: 32, height: 32, borderRadius: '50%', background: msg.role === 'luna' ? `radial-gradient(circle at 38% 38%,${col},${col}88)` : 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0, border: '1px solid var(--border)', boxShadow: msg.role === 'luna' ? `0 0 12px ${col}44` : 'none' }}>
-                {msg.role === 'luna' ? '🌙' : (userProfile?.given_name?.[0] || 'U')}
+                {msg.role === 'luna' ? '' : (userProfile?.given_name?.[0] || 'U')}
               </div>
               <div style={{ maxWidth: '72%' }}>
                 <div style={{ fontSize: 10, color: 'var(--text2)', marginBottom: 4, textAlign: msg.role === 'user' ? 'right' : 'left' }}>
-                  {msg.role === 'luna' ? 'LUNA' : (userProfile?.given_name || 'Voce')} · {msg.time}
+                  {msg.role === 'luna' ? 'LUNA' : (userProfile?.given_name || 'Voce')}  {msg.time}
                 </div>
                 <div style={{ background: msg.role === 'luna' ? 'var(--surface)' : `${col}22`, border: `1px solid ${msg.role === 'luna' ? 'var(--border)' : col + '44'}`, borderRadius: msg.role === 'luna' ? '4px 16px 16px 16px' : '16px 4px 16px 16px', padding: '10px 14px', fontSize: 14, lineHeight: 1.6, color: 'var(--text)' }}>
                   {msg.text}
@@ -246,7 +246,7 @@ export default function LUNAPage() {
           ))}
           {s === 'thinking' && (
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-              <div style={{ width: 32, height: 32, borderRadius: '50%', background: `radial-gradient(circle,${col},${col}88)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>🌙</div>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: `radial-gradient(circle,${col},${col}88)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}></div>
               <div style={{ display: 'flex', gap: 4, padding: '10px 14px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '4px 16px 16px 16px' }}>
                 {[0, 120, 240].map((d, i) => <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: col, animation: `bounce 1s ${d}ms infinite` }} />)}
               </div>
@@ -271,7 +271,7 @@ export default function LUNAPage() {
             onClick={() => s === 'listening' ? stopMic() : startMic()}
             style={{ width: 48, height: 48, borderRadius: '50%', border: 'none', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, background: s === 'listening' ? '#f87171' : s === 'speaking' ? col : 'var(--surface)', boxShadow: isActive ? `0 0 20px ${col}66` : 'none', transition: 'all 0.2s' }}
           >
-            {s === 'listening' ? '⏹' : '🎙️'}
+            {s === 'listening' ? '' : ''}
           </button>
 
           {/* Text input */}
@@ -290,7 +290,7 @@ export default function LUNAPage() {
             disabled={!input.trim() || s === 'thinking'}
             style={{ width: 48, height: 48, borderRadius: '50%', border: 'none', cursor: input.trim() ? 'pointer' : 'default', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, background: input.trim() ? `linear-gradient(135deg,${col},${col}aa)` : 'var(--surface)', opacity: input.trim() ? 1 : 0.4, transition: 'all 0.2s' }}
           >
-            ➤
+            
           </button>
         </div>
 
