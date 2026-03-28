@@ -4,6 +4,12 @@ import { useRouter } from 'next/navigation'
 import { useStore } from '@/lib/store'
 import LunaIntro from '@/components/LunaIntro'
 
+declare global {
+  interface Window {
+    google: any
+  }
+}
+
 const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''
 const SCOPES = 'openid email profile https://www.googleapis.com/auth/calendar'
 
