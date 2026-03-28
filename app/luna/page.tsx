@@ -231,12 +231,10 @@ export default function LUNAPage() {
 
   const col = COL[s]
   const isActive = s !== 'idle'
-  const statusLabel: Record<S,string> = {
-    idle:      'Pronto - pressione Espaco ou o botao',
-    listening: 'Ouvindo - fale agora...',
-    thinking:  'Processando...',
-    speaking:  'LUNA falando...',
-  }[s]
+  let statusLabel = "Pronto - pressione Espaco ou o botao"
+  if (s === "listening") statusLabel = "Ouvindo - fale agora..."
+  if (s === "thinking")  statusLabel = "Processando..."
+  if (s === "speaking")  statusLabel = "LUNA falando..."
 
   return (
     <AppShell>
