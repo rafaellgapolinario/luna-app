@@ -5,45 +5,47 @@ import { t } from '@/lib/translations'
 import NexusIcon from './NexusIcon'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import LunaIntro from './LunaIntro'
 
 const NAV = [
-  { href: '/luna',        label: null, staticLabel: '⚡ LUNA',       icon: MicIcon,      highlight: true },
-  { href: '/',            label: 'nav_home' as const,                  icon: HomeIcon },
-  { href: '/finances',    label: null, staticLabel: '💸 Finanças',    icon: CardIcon },
-  { href: '/habits',      label: null, staticLabel: '🎯 Hábitos',     icon: BoltIcon },
-  { href: '/notes',       label: null, staticLabel: '📝 Anotações',   icon: NotesIcon },
+  { href: '/luna',        label: null, staticLabel: 'LUNA',         icon: MicIcon,      highlight: true },
+  { href: '/finances',    label: null, staticLabel: 'Financas',      icon: CardIcon },
+  { href: '/habits',      label: null, staticLabel: 'Habitos',       icon: BoltIcon },
+  { href: '/notes',       label: null, staticLabel: 'Anotacoes',     icon: NotesIcon },
   { href: '/calendar',    label: 'nav_calendar' as const,              icon: CalendarIcon },
   { href: '/whatsapp',    label: 'nav_whatsapp' as const,              icon: WAIcon },
-  { href: '/automations', label: null, staticLabel: 'Automações',      icon: BoltIcon },
+  { href: '/automations', label: null, staticLabel: 'Automacoes',    icon: BoltIcon },
   { href: '/plans',       label: null, staticLabel: 'Planos',          icon: CardIcon },
   { href: '/settings',    label: 'nav_settings' as const,              icon: SettingsIcon },
 ]
 
 const PLAN_COLORS = {
   free:     { label: 'Free',        bg: 'rgba(255,255,255,0.07)', color: '#55556a' },
-  pro:      { label: 'Pro ⭐',      bg: 'rgba(124,109,250,0.2)', color: '#a78bfa' },
-  business: { label: 'Business 🚀', bg: 'rgba(245,158,11,0.15)', color: '#f59e0b' },
+  pro:      { label: 'Pro ',      bg: 'rgba(124,109,250,0.2)', color: '#a78bfa' },
+  business: { label: 'Business', bg: 'rgba(245,158,11,0.15)', color: '#f59e0b' },
 }
 
 export function Sidebar() {
+  const [collapsed, setCollapsed] = React.useState(false)
   const { lang, userProfile, currentPlan } = useStore(s => ({
     lang: s.lang, userProfile: s.userProfile, currentPlan: s.currentPlan,
   }))
   const pathname = usePathname()
   const pb = PLAN_COLORS[currentPlan]
   const owner = userProfile?.email === OWNER_EMAIL
-    const [showIntro, setShowIntro] = useState(false)
-
+  
   return (
-    <aside style={{ width: 'var(--sidebar)', flexShrink: 0, background: 'var(--bg2)', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', padding: '24px 0 16px', zIndex: 10 }}>
+    <aside style={{ width: collapsed ? 64 : 'var(--sidebar)', flexShrink: 0, background: 'var(--bg2)', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', padding: '24px 0 16px', zIndex: 10, transition: 'width 0.2s ease', overflow: 'hidden' }}>
+        {/* Toggle button */}
+        <button onClick={() => setCollapsed(c => !c)} style={{ position: 'absolute', right: -12, top: 24, width: 24, height: 24, borderRadius: '50%', background: 'var(--bg3)', border: '1px solid var(--border)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text2)', zIndex: 20, padding: 0 }}>
+          {collapsed ? '>' : '<'}
+        </button>
       {/* Logo */}
-              <div onClick={() => setShowIntro(true)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, padding: '0 20px 28px', borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
+              <Link href="/luna" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: 10, padding: '0 20px 28px', borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
         <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#7c6dfa,#a78bfa)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <img src="/luna-logo.png" alt="LUNA" width={20} height={20} style={{ objectFit: "contain", borderRadius: "50%" }} />
         </div>
         <span style={{ fontFamily: 'Syne', fontSize: 20, fontWeight: 800, letterSpacing: '-0.5px' }}>LUNA</span>
-      </div>
+      </Link>
 
       {/* Nav */}
       <nav style={{ flex: 1 }}>
@@ -60,7 +62,7 @@ export function Sidebar() {
               transition: 'all 0.15s', margin: '1px 0',
             }}>
               <Icon />
-              <span>{text}</span>
+              {!collapsed && <span>{text}</span>}
               {highlight && !active && <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', boxShadow: '0 0 6px var(--green)', marginLeft: 'auto' }} />}
             </Link>
           )
@@ -68,7 +70,7 @@ export function Sidebar() {
         {owner && (
           <Link href="/admin" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 20px', color: pathname === '/admin' ? 'var(--amber)' : 'var(--text2)', fontSize: 14, fontWeight: 500, textDecoration: 'none', borderLeft: `3px solid ${pathname === '/admin' ? 'var(--amber)' : 'transparent'}`, background: pathname === '/admin' ? 'rgba(245,158,11,0.08)' : 'transparent', transition: 'all 0.15s' }}>
             <ShieldIcon />
-            <span>Admin</span>
+            {!collapsed && <span>Admin</span>}
           </Link>
         )}
       </nav>
@@ -86,12 +88,7 @@ export function Sidebar() {
           </Link>
         </div>
       )}
-      {showIntro && (
-              <LunaIntro
-                          userName={userProfile?.given_name || userProfile?.name}
-                          onFinish={() => setShowIntro(false)}
-                        />
-            )}
+
     </aside>
   )
 }
