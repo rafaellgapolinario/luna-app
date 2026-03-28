@@ -37,7 +37,7 @@ export default function LUNAPage() {
   useEffect(()=>{ sRef.current=s },[s])
   useEffect(()=>{ endRef.current?.scrollIntoView({behavior:'smooth'}) },[msgs])
 
-  // ── Browser TTS ─────────────────────────
+  // -- Browser TTS --
   const browserSpeak = useCallback((text:string, onEnd?:()=>void)=>{
     const synth = window.speechSynthesis
     synth.cancel()
@@ -56,7 +56,7 @@ export default function LUNAPage() {
     else { window.speechSynthesis.onvoiceschanged = go }
   },[])
 
-  // ── Speak ─────────────────────────────────────────────────────────────────
+  // -- Speak --
   const speak = useCallback(async (text:string, onEnd?:()=>void)=>{
     setS('speaking')
     try {
@@ -73,7 +73,7 @@ export default function LUNAPage() {
     } catch { browserSpeak(text,onEnd) }
   },[browserSpeak])
 
-  // ── Stop mic ────────────────────────────
+  // -- Stop mic --
   const stopMic = useCallback(()=>{
     lisRef.current = false
     try{ recRef.current?.stop() }catch{}
@@ -82,7 +82,7 @@ export default function LUNAPage() {
     setLive('')
   },[])
 
-  // ── Start mic ── manual trigger only ───
+  // -- Start mic -- manual trigger only --
   const startMic = useCallback(()=>{
     const SR=(window as any).SpeechRecognition||(window as any).webkitSpeechRecognition
     if(!SR){ showToast('Use Chrome para reconhecimento de voz.'); return }
@@ -134,7 +134,7 @@ export default function LUNAPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[showToast, stopMic])
 
-  // ── Send to AI ──────────────────────────
+  // -- Send to AI --
   const sendToAI = useCallback(async (text:string)=>{
     if(!text.trim()) return
     setS('thinking'); setLive('')
@@ -178,7 +178,7 @@ export default function LUNAPage() {
 
       // Save note if created
       if(data.noteCreated && data.noteData && userProfile?.email){
-        tag='✅ Salvo!'
+        tag='[OK] Salvo!'
         fetch('/api/notes',{
           method:'POST',
           headers:{'Content-Type':'application/json','x-user-email':userProfile.email},
@@ -191,7 +191,7 @@ export default function LUNAPage() {
           })
         }).catch(()=>{})
       }
-      if(data.eventCreated) tag='📅 Evento criado!'
+      if(data.eventCreated) tag='[OK] Evento criado!'
 
       setMsgs(p=>[...p,{id:uid(),role:'luna',text:reply,time:tstr(),tag}])
       addMessage({role:'user',content:text})
@@ -231,11 +231,11 @@ export default function LUNAPage() {
 
   const col = COL[s]
   const isActive = s !== 'idle'
-  const statusLabel = {
-    idle:      '🌙 Pronto — pressione Espaco ou o botao',
-    listening: '🎤 Ouvindo — fale agora...',
-    thinking:  '⏳ Processando...',
-    speaking:  '🔊 LUNA falando...',
+  const statusLabel: Record<S,string> = {
+    idle:      'Pronto - pressione Espaco ou o botao',
+    listening: 'Ouvindo - fale agora...',
+    thinking:  'Processando...',
+    speaking:  'LUNA falando...',
   }[s]
 
   return (
@@ -254,7 +254,7 @@ export default function LUNAPage() {
           <span style={{fontSize:12,color:col,fontWeight:600,transition:'color 0.3s'}}>{statusLabel}</span>
         </div>
 
-        {/* HUD orb — only when active */}
+        {/* HUD orb -- only when active */}
         {isActive&&(
           <div style={{position:'absolute',top:'42%',left:'50%',transform:'translate(-50%,-50%)',zIndex:1,pointerEvents:'none',display:'flex',flexDirection:'column',alignItems:'center',gap:14}}>
             <div style={{position:'relative',width:160,height:160,display:'flex',alignItems:'center',justifyContent:'center'}}>
@@ -350,11 +350,11 @@ export default function LUNAPage() {
           {/* Quick chips */}
           <div style={{display:'flex',gap:6,marginTop:8,flexWrap:'wrap'}}>
             {[
-              [['📅 Agenda','O que tenho na agenda hoje?'],
-              [['📝 Anota','Anota: '],
-              [['⚡ Tarefa','Cria tarefa: '],
-              [['⏰ Lembrete','Me lembra de '],
-              [['🗓 Semana','Resumo da minha semana'],
+        [['Agenda','O que tenho na agenda hoje?'],
+        ['Anota','Anota: '],
+        ['Tarefa','Cria tarefa: '],
+        ['Lembrete','Me lembra de '],
+        ['Semana','Resumo da minha semana'],
             ].map(([l,v])=>(
               <button key={l}
                 onClick={()=>{ if(v.endsWith(': ')||v.endsWith('de ')){ setInput(v) }else{ sendToAI(v) } }}
