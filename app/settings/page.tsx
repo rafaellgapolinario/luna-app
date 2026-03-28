@@ -28,7 +28,7 @@ export default function SettingsPage() {
     <AppShell>
       <div style={{ flex: 1, overflowY: 'auto', padding: '32px 24px', maxWidth: 720, margin: '0 auto', width: '100%' }}>
         <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 24, marginBottom: 8 }}>
-          {t(lang, 'settings_title')}
+          'Configuracoes'
         </h1>
         <p style={{ color: 'var(--text3)', fontSize: 14, marginBottom: 32 }}>
           Gerencie suas preferencias e integracoes.
