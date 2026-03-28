@@ -24,7 +24,7 @@ export default function LUNAPage() {
 
   const [s,     setS]    = useState<S>('idle')
   const [msgs,  setMsgs] = useState<Msg[]>([{id:uid(),role:'luna',time:tstr(),
-    text:`OlÃÂÃÂÃÂÃÂ¡${userProfile?', '+(userProfile.given_name||userProfile.name):''}! Pressione o botÃÂÃÂÃÂÃÂ£o do microfone ou EspaÃÂÃÂÃÂÃÂ§o para falar.`}])
+    text:`Ola${userProfile?', '+(userProfile.given_name||userProfile.name):''}! Pressione o botao do microfone ou Espaco para falar.`}])
   const [live,  setLive]  = useState('')
   const [input, setInput] = useState('')
 
@@ -37,7 +37,7 @@ export default function LUNAPage() {
   useEffect(()=>{ sRef.current=s },[s])
   useEffect(()=>{ endRef.current?.scrollIntoView({behavior:'smooth'}) },[msgs])
 
-  // ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Browser TTS ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ
+  // ── Browser TTS ─────────────────────────
   const browserSpeak = useCallback((text:string, onEnd?:()=>void)=>{
     const synth = window.speechSynthesis
     synth.cancel()
@@ -73,7 +73,7 @@ export default function LUNAPage() {
     } catch { browserSpeak(text,onEnd) }
   },[browserSpeak])
 
-  // ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Stop mic ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ
+  // ── Stop mic ────────────────────────────
   const stopMic = useCallback(()=>{
     lisRef.current = false
     try{ recRef.current?.stop() }catch{}
@@ -82,7 +82,7 @@ export default function LUNAPage() {
     setLive('')
   },[])
 
-  // ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Start mic ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ manual trigger only ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ
+  // ── Start mic ── manual trigger only ───
   const startMic = useCallback(()=>{
     const SR=(window as any).SpeechRecognition||(window as any).webkitSpeechRecognition
     if(!SR){ showToast('Use Chrome para reconhecimento de voz.'); return }
@@ -123,7 +123,7 @@ export default function LUNAPage() {
 
     rec.onerror = (e:any)=>{
       stopMic()
-      if(e.error === 'not-allowed') showToast('Permita o microfone: clique no cadeado na barra de endereÃÂÃÂÃÂÃÂ§o.')
+      if(e.error === 'not-allowed') showToast('Permita o microfone: clique no cadeado na barra de endereco.')
       else if(e.error !== 'no-speech' && e.error !== 'aborted') showToast('Erro mic: '+e.error)
     }
 
@@ -134,7 +134,7 @@ export default function LUNAPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[showToast, stopMic])
 
-  // ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Send to AI ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ
+  // ── Send to AI ──────────────────────────
   const sendToAI = useCallback(async (text:string)=>{
     if(!text.trim()) return
     setS('thinking'); setLive('')
@@ -178,7 +178,7 @@ export default function LUNAPage() {
 
       // Save note if created
       if(data.noteCreated && data.noteData && userProfile?.email){
-        tag='ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ Salvo!'
+        tag='✅ Salvo!'
         fetch('/api/notes',{
           method:'POST',
           headers:{'Content-Type':'application/json','x-user-email':userProfile.email},
@@ -191,7 +191,7 @@ export default function LUNAPage() {
           })
         }).catch(()=>{})
       }
-      if(data.eventCreated) tag='ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ Evento criado!'
+      if(data.eventCreated) tag='📅 Evento criado!'
 
       setMsgs(p=>[...p,{id:uid(),role:'luna',text:reply,time:tstr(),tag}])
       addMessage({role:'user',content:text})
@@ -199,8 +199,8 @@ export default function LUNAPage() {
       if(tag) showToast(tag)
       speak(reply)
     } catch {
-      setMsgs(p=>[...p,{id:uid(),role:'luna',text:'Erro de conexÃÂÃÂÃÂÃÂ£o.',time:tstr()}])
-      speak('Erro de conexÃÂÃÂÃÂÃÂ£o.')
+      setMsgs(p=>[...p,{id:uid(),role:'luna',text:'Erro de conexao.',time:tstr()}])
+      speak('Erro de conexao.')
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[calendarEvents,chatHistory,userProfile,lang,geminiKey,accessToken,speak,addMessage,showToast])
@@ -254,7 +254,7 @@ export default function LUNAPage() {
           <span style={{fontSize:12,color:col,fontWeight:600,transition:'color 0.3s'}}>{statusLabel}</span>
         </div>
 
-        {/* HUD orb ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ only when active */}
+        {/* HUD orb — only when active */}
         {isActive&&(
           <div style={{position:'absolute',top:'42%',left:'50%',transform:'translate(-50%,-50%)',zIndex:1,pointerEvents:'none',display:'flex',flexDirection:'column',alignItems:'center',gap:14}}>
             <div style={{position:'relative',width:160,height:160,display:'flex',alignItems:'center',justifyContent:'center'}}>
@@ -350,11 +350,11 @@ export default function LUNAPage() {
           {/* Quick chips */}
           <div style={{display:'flex',gap:6,marginTop:8,flexWrap:'wrap'}}>
             {[
-              ['ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ Agenda','O que tenho na agenda hoje?'],
-              ['ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ Anota','Anota: '],
-              ['ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Tarefa','Cria tarefa: '],
-              ['ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ° Lembrete','Me lembra de '],
-              ['ÃÂÃÂ°ÃÂÃÂÃÂÃÂ§ÃÂÃÂ  Semana','Resumo da minha semana'],
+              [['📅 Agenda','O que tenho na agenda hoje?'],
+              [['📝 Anota','Anota: '],
+              [['⚡ Tarefa','Cria tarefa: '],
+              [['⏰ Lembrete','Me lembra de '],
+              [['🗓 Semana','Resumo da minha semana'],
             ].map(([l,v])=>(
               <button key={l}
                 onClick={()=>{ if(v.endsWith(': ')||v.endsWith('de ')){ setInput(v) }else{ sendToAI(v) } }}
@@ -366,7 +366,7 @@ export default function LUNAPage() {
             ))}
           </div>
           <div style={{textAlign:'center',marginTop:6,fontSize:10,color:'var(--text3)'}}>
-            <kbd style={{background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:3,padding:'1px 5px'}}>EspaÃÂÃÂÃÂÃÂ§o</kbd> ativar mic ÃÂÃÂÃÂÃÂ·
+            <kbd style={{background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:3,padding:'1px 5px'}}>Espaco</kbd> ativar mic ÃÂÃÂÃÂÃÂ·
             <kbd style={{background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:3,padding:'1px 5px',margin:'0 3px'}}>Esc</kbd> parar
           </div>
         </div>
