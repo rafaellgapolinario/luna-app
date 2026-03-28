@@ -52,16 +52,33 @@ export default function LUNAPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [msgs])
 
-  const speak = useCallback((text: string) => {
-    window.speechSynthesis?.cancel()
+  const speak = useCallback(async (text: string) => {
     const clean = cleanTTS(text)
+    if (!clean) return
+    setS('speaking')
+    try {
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: clean }),
+      })
+      if (res.ok) {
+        const blob = await res.blob()
+        const url = URL.createObjectURL(blob)
+        const audio = new Audio(url)
+        audio.onended = () => { URL.revokeObjectURL(url); if (sRef.current === 'speaking') setS('idle') }
+        audio.onerror = () => { URL.revokeObjectURL(url); if (sRef.current === 'speaking') setS('idle') }
+        await audio.play()
+        return
+      }
+    } catch (e) { console.error('ElevenLabs TTS error:', e) }
+    // Fallback: Web Speech API
+    window.speechSynthesis?.cancel()
     const utt = new SpeechSynthesisUtterance(clean)
     utt.lang = lang === 'en' ? 'en-US' : 'pt-BR'
     utt.rate = 1.05
     utt.onend = () => { if (sRef.current === 'speaking') setS('idle') }
-    synthRef.current = utt
-    setS('speaking')
-    window.speechSynthesis.speak(utt)
+    window.speechSynthesis?.speak(utt)
   }, [lang])
 
   const addMsg = useCallback((role: 'user' | 'luna', text: string) => {
@@ -84,9 +101,11 @@ export default function LUNAPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: text, lang, userProfile, geminiKey,
-          calendarSummary: cal, accessToken,
-          history,
+          messages: [...chatHistory.slice(-8).map(m => ({ role: m.role, content: m.content })), { role: 'user', content: text }],
+          lang, userName: userProfile?.given_name || userProfile?.name || '',
+          calendarContext: cal, geminiKey, accessToken,
+          userId: useStore.getState().userId,
+          voiceMode: false,
         })
       })
 
