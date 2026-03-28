@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useStore } from '@/lib/store'
 import { AppShell } from '@/components/AppShell'
+import { STRINGS } from '@/lib/strings'
 
 interface Msg { id: string; role: 'user'|'luna'; text: string; time: string; tag?: string }
 type S = 'idle'|'listening'|'thinking'|'speaking'
@@ -24,7 +25,7 @@ export default function LUNAPage() {
 
   const [s,     setS]    = useState<S>('idle')
   const [msgs,  setMsgs] = useState<Msg[]>([{id:uid(),role:'luna',time:tstr(),
-    text:`Ola${userProfile?', '+(userProfile.given_name||userProfile.name):''}! Pressione o botao do microfone ou Espaco para falar.`}])
+    text:STRINGS.welcomeMsg(userProfile?.given_name||userProfile?.name)
   const [live,  setLive]  = useState('')
   const [input, setInput] = useState('')
 
@@ -199,8 +200,8 @@ export default function LUNAPage() {
       if(tag) showToast(tag)
       speak(reply)
     } catch {
-      setMsgs(p=>[...p,{id:uid(),role:'luna',text:'Erro de conexao.',time:tstr()}])
-      speak('Erro de conexao.')
+      setMsgs(p=>[...p,{id:uid(),role:'luna',text:'' + STRINGS.errConexao + '',time:tstr()}])
+      speak('' + STRINGS.errConexao + '')
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[calendarEvents,chatHistory,userProfile,lang,geminiKey,accessToken,speak,addMessage,showToast])
@@ -231,12 +232,10 @@ export default function LUNAPage() {
 
   const col = COL[s]
   const isActive = s !== 'idle'
-  const statusLabel = {
-    idle:      'ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂ¸ÃÂÃÂ Pronto ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ pressione EspaÃÂÃÂÃÂÃÂ§o ou o botÃÂÃÂÃÂÃÂ£o',
-    listening: 'ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ´ Ouvindo ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ fale agora...',
-    thinking:  'ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂ¸ÃÂÃÂ Processando...',
-    speaking:  'ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ LUNA falando...',
-  }[s]
+  let statusLabel = STRINGS.statusIdle
+  if (s === "listening") statusLabel = STRINGS.statusListening
+  if (s === "thinking")  statusLabel = STRINGS.statusThinking
+  if (s === "speaking")  statusLabel = STRINGS.statusSpeaking
 
   return (
     <AppShell>
