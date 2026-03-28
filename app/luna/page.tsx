@@ -152,60 +152,40 @@ export default function LUNAPage() {
   }, [lang, userProfile, geminiKey, calendarEvents, accessToken, chatHistory, addMsg, speak, showToast])
 
 
-  const startWebSpeech = useCallback(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (!SpeechRecognition) { addMsg('luna', 'Reconhecimento de voz nao suportado. Use Chrome.'); return }
-    const recog = new SpeechRecognition()
+  // Mic usa Web Speech API diretamente - sem servidor
+  const startMic = useCallback(() => {
+    if (sRef.current !== 'idle') return
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SR) {
+      addMsg('luna', 'Reconhecimento de voz nao suportado. Use Chrome.')
+      return
+    }
+    const recog = new SR()
     recog.lang = lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'pt-BR'
     recog.continuous = false
     recog.interimResults = false
+    recog.maxAlternatives = 1
     recog.onstart = () => setS('listening')
     recog.onresult = (e: any) => {
-      const text = e.results[0]?.[0]?.transcript || ''
+      const text = e.results[0]?.[0]?.transcript?.trim() || ''
       if (text) sendToLuna(text)
       else setS('idle')
     }
-    recog.onerror = () => setS('idle')
+    recog.onspeechend = () => recog.stop()
+    recog.onerror = (e: any) => {
+      console.error('SpeechRecognition error:', e.error)
+      if (e.error === 'not-allowed') addMsg('luna', 'Permita o microfone nas configuracoes do navegador.')
+      setS('idle')
+    }
     recog.onend = () => { if (sRef.current === 'listening') setS('idle') }
     recog.start()
+    recRef.current = recog as any
   }, [lang, sendToLuna, addMsg])
 
-    const startMic = useCallback(async () => {
-    if (sRef.current !== 'idle') return
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      chunksRef.current = []
-      const rec = new MediaRecorder(stream)
-      rec.ondataavailable = e => chunksRef.current.push(e.data)
-      rec.onstop = async () => {
-        stream.getTracks().forEach(t => t.stop())
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
-        if (blob.size < 1000) { setS('idle'); return }
-        setS('thinking')
-        const fd = new FormData()
-        fd.append('audio', blob, 'audio.webm')
-        fd.append('lang', lang)
-        try {
-          const res = await fetch('/api/stt', { method: 'POST', body: fd })
-          const d = await res.json()
-          if (d.text) {
-            await sendToLuna(d.text)
-          } else if (d.useWebSpeech) {
-            // Fallback: Web Speech API (nao precisa de servidor)
-            setS('idle')
-            startWebSpeech()
-          } else {
-            setS('idle')
-          }
-        } catch { setS('idle') }
-      }
-      recRef.current = rec
-      rec.start()
-      setS('listening')
-    } catch {
-      addMsg('luna', 'Permita o microfone: clique no cadeado na barra de endereco.')
-    }
-  }, [lang, sendToLuna, addMsg])
+  const stopMic = useCallback(() => {
+    if (recRef.current) { (recRef.current as any).stop?.(); recRef.current = null }
+    if (sRef.current === 'listening') setS('idle')
+  }, [])
 
   const stopMic = useCallback(() => {
     if (recRef.current && recRef.current.state === 'recording') {
@@ -260,6 +240,36 @@ export default function LUNAPage() {
 
         {/* Ambient glow */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: `radial-gradient(ellipse 60% 40% at 50% 50%,${col}0e 0%,transparent 70%)`, transition: 'background 0.5s', zIndex: 0 }} />
+
+        {/* JARVIS EFFECT - efeito visual quando mic ativo */}
+        {(s === 'listening' || s === 'thinking' || s === 'speaking') && (
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', zIndex: 40 }}>
+            <div style={{ position: 'relative', width: 280, height: 280 }}>
+              <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid ' + (s==='listening'?'rgba(248,113,113,0.7)':s==='thinking'?'rgba(245,158,11,0.7)':'rgba(34,211,160,0.7)'), animation: 'jR1 2s ease-in-out infinite' }} />
+              <div style={{ position: 'absolute', inset: 20, borderRadius: '50%', border: '1px solid ' + (s==='listening'?'rgba(248,113,113,0.4)':s==='thinking'?'rgba(245,158,11,0.4)':'rgba(34,211,160,0.4)'), animation: 'jR2 2s ease-in-out infinite 0.25s' }} />
+              <div style={{ position: 'absolute', inset: 40, borderRadius: '50%', border: '1px solid ' + (s==='listening'?'rgba(248,113,113,0.25)':s==='thinking'?'rgba(245,158,11,0.25)':'rgba(34,211,160,0.25)'), animation: 'jR1 2s ease-in-out infinite 0.5s' }} />
+              <div style={{ position: 'absolute', inset: 60, borderRadius: '50%', border: '1px solid ' + (s==='listening'?'rgba(248,113,113,0.15)':s==='thinking'?'rgba(245,158,11,0.15)':'rgba(34,211,160,0.15)'), animation: 'jR2 2.5s ease-in-out infinite 0.75s' }} />
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 90, height: 90, borderRadius: '50%', background: 'radial-gradient(circle, ' + (s==='listening'?'rgba(248,113,113,0.25)':s==='thinking'?'rgba(245,158,11,0.25)':'rgba(34,211,160,0.25)') + ' 0%, transparent 70%)', animation: 'jCore 1.5s ease-in-out infinite', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ display: 'flex', gap: 4, alignItems: 'center', height: 36 }}>
+                    {[0,1,2,3,4,5,6].map(i => (
+                      <div key={i} style={{ width: 3, borderRadius: 99, background: s==='listening'?'#f87171':s==='thinking'?'#f59e0b':'#22d3a0', animation: 'jBar 0.9s ease-in-out ' + (i*0.1) + 's infinite' }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div style={{ position: 'absolute', bottom: -44, left: '50%', transform: 'translateX(-50%)', fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', color: s==='listening'?'#f87171':s==='thinking'?'#f59e0b':'#22d3a0', whiteSpace: 'nowrap' }}>
+                {s==='listening'?'Ouvindo...':s==='thinking'?'Processando...':'LUNA falando...'}
+              </div>
+            </div>
+            <style>{`
+              @keyframes jR1 { 0%,100%{transform:scale(1);opacity:0.7} 50%{transform:scale(1.1);opacity:1} }
+              @keyframes jR2 { 0%,100%{transform:scale(1.05);opacity:0.5} 50%{transform:scale(0.95);opacity:0.9} }
+              @keyframes jCore { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+              @keyframes jBar { 0%,100%{height:6px;opacity:0.3} 50%{height:32px;opacity:1} }
+            `}</style>
+          </div>
+        )}
 
         {/* Header */}
         <div style={{ padding: '12px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, zIndex: 1, position: 'relative' }}>
