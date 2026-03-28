@@ -2,412 +2,238 @@
 import { useState } from 'react'
 import { useStore } from '@/lib/store'
 import { AppShell } from '@/components/AppShell'
-import type { Plan } from '@/lib/types'
 
-// ── Config de planos ──────────────────────────────────────────────────────────
+type PlanId = 'free' | 'pro' | 'business'
+type BillingCycle = 'monthly' | 'annual'
+
 const PLANS = [
   {
-    id: 'free' as Plan,
-    label: 'Free',
-    monthlyPrice: 0,
-    annualPrice: 0,
-    color: 'var(--text2)',
-    badge: '🆓 Gratuito',
-    cta: 'Usar grátis',
+    id: 'free' as PlanId,
+    name: 'Gratuito',
+    desc: 'Para experimentar Luna',
+    monthly: 0,
+    annual: 0,
+    color: '#55556a',
     features: [
-      { ok: true,  text: 'Chat IA (50 msgs/dia)' },
-      { ok: true,  text: 'Google Calendar integrado' },
-      { ok: true,  text: 'Dashboard de produtividade' },
-      { ok: true,  text: '3 hábitos simultâneos' },
-      { ok: false, text: 'Voz neural (Azure TTS)' },
-      { ok: false, text: 'Chat IA ilimitado' },
-      { ok: false, text: 'Controle financeiro' },
-      { ok: false, text: 'WhatsApp automático' },
-      { ok: false, text: 'Automações' },
-      { ok: false, text: 'Suporte prioritário' },
+      { ok: true,  text: 'Chat com IA (20 mensagens/dia)' },
+      { ok: true,  text: 'Google Calendar (somente leitura)' },
+      { ok: true,  text: '3 habitos ativos' },
+      { ok: true,  text: 'Controle financeiro basico' },
+      { ok: false, text: 'WhatsApp integrado' },
+      { ok: false, text: 'Automacoes' },
+      { ok: false, text: 'Notas IA ilimitadas' },
     ],
+    cta: 'Comecar gratis',
   },
   {
-    id: 'pro' as Plan,
-    label: 'Pro',
-    monthlyPrice: 29.9,
-    annualPrice: 239,
-    color: 'var(--accent2)',
-    badge: '⭐ Pro',
+    id: 'pro' as PlanId,
+    name: 'Pro',
+    desc: 'Para quem quer o maximo',
+    monthly: 29.9,
+    annual: 239,
+    color: '#7c6dfa',
+    highlight: true,
+    features: [
+      { ok: true, text: 'Chat com IA ilimitado' },
+      { ok: true, text: 'Google Calendar completo' },
+      { ok: true, text: 'Habitos ilimitados + streaks' },
+      { ok: true, text: 'Financas com relatorios' },
+      { ok: true, text: 'WhatsApp integrado' },
+      { ok: true, text: 'Automacoes Se -> Entao' },
+      { ok: true, text: 'Notas com IA' },
+      { ok: true, text: 'Suporte prioritario' },
+    ],
     cta: 'Assinar Pro',
-    popular: true,
-    features: [
-      { ok: true,  text: 'Chat IA ilimitado' },
-      { ok: true,  text: 'Google Calendar integrado' },
-      { ok: true,  text: 'Dashboard de produtividade' },
-      { ok: true,  text: 'Hábitos ilimitados + streak' },
-      { ok: true,  text: 'Voz neural (Azure TTS)' },
-      { ok: true,  text: 'Controle financeiro completo' },
-      { ok: true,  text: 'WhatsApp automático (Z-API)' },
-      { ok: true,  text: '10 automações' },
-      { ok: false, text: 'Multi-usuário' },
-      { ok: false, text: 'API access' },
-    ],
   },
   {
-    id: 'business' as Plan,
-    label: 'Business',
-    monthlyPrice: 97,
-    annualPrice: 779,
-    color: 'var(--amber)',
-    badge: '🚀 Business',
-    cta: 'Assinar Business',
+    id: 'business' as PlanId,
+    name: 'Business',
+    desc: 'Para times e empresas',
+    monthly: 97,
+    annual: 779,
+    color: '#f59e0b',
     features: [
-      { ok: true,  text: 'Tudo do Pro' },
-      { ok: true,  text: 'Multi-usuário (até 10 pessoas)' },
-      { ok: true,  text: 'Automações ilimitadas' },
-      { ok: true,  text: 'API access (REST)' },
-      { ok: true,  text: 'Relatórios avançados + BI' },
-      { ok: true,  text: 'Gestão de projetos completa' },
-      { ok: true,  text: 'Suporte prioritário 24h' },
-      { ok: true,  text: 'Onboarding personalizado' },
-      { ok: true,  text: 'SLA garantido' },
-      { ok: true,  text: 'White-label disponível' },
+      { ok: true, text: 'Tudo do Pro' },
+      { ok: true, text: 'Multi-usuarios' },
+      { ok: true, text: 'Dashboard de equipe' },
+      { ok: true, text: 'Integracao CRM' },
+      { ok: true, text: 'Automacoes avancadas' },
+      { ok: true, text: 'Suporte dedicado' },
+      { ok: true, text: 'SLA garantido' },
     ],
+    cta: 'Falar com vendas',
   },
 ]
-
-const FAQS = [
-  { q: 'Posso cancelar a qualquer momento?', a: 'Sim. Cancele quando quiser, sem multas ou burocracia. Você mantém acesso até o fim do período pago.' },
-  { q: 'A garantia de 14 dias funciona mesmo?', a: 'Sim. Se por qualquer motivo não ficar satisfeito nos primeiros 14 dias, devolvemos 100% do valor — sem perguntas.' },
-  { q: 'O plano anual tem desconto?', a: 'Sim! No anual você economiza 33% (Pro) e 33% (Business), pagando tudo de uma vez com desconto.' },
-  { q: 'Posso trocar de plano depois?', a: 'Pode! Upgrade ou downgrade a qualquer momento. A diferença é calculada proporcionalmente.' },
-  { q: 'Como funciona o multi-usuário?', a: 'No Business, você convida até 10 membros. Cada um tem seu login e acessa o painel compartilhado da equipe.' },
-]
-
-// ── Componentes ───────────────────────────────────────────────────────────────
-function FeatureRow({ ok, text }: { ok: boolean; text: string }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0' }}>
-      <div style={{
-        width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
-        background: ok ? 'rgba(34,211,160,0.15)' : 'rgba(107,114,128,0.1)',
-        border: `1px solid ${ok ? 'rgba(34,211,160,0.3)' : 'rgba(107,114,128,0.2)'}`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 10, color: ok ? 'var(--green)' : 'var(--text3)',
-      }}>
-        {ok ? '✓' : '×'}
-      </div>
-      <span style={{ fontSize: 13, color: ok ? 'var(--text)' : 'var(--text3)' }}>{text}</span>
-    </div>
-  )
-}
 
 export default function PlansPage() {
-  const { currentPlan, setPlan, showToast } = useStore(s => ({
-    currentPlan: s.currentPlan, setPlan: s.setPlan, showToast: s.showToast,
+  const { currentPlan, userProfile } = useStore(s => ({
+    currentPlan: s.currentPlan, userProfile: s.userProfile,
   }))
-  const [annual, setAnnual] = useState(false)
-  const [checkout, setCheckout] = useState<Plan | null>(null)
-  const [faqOpen, setFaqOpen] = useState<number | null>(null)
+  const [billing, setBilling] = useState<BillingCycle>('monthly')
+  const [loading, setLoading] = useState<PlanId | null>(null)
+  const [checkout, setCheckout] = useState<PlanId | null>(null)
 
-  const current = PLANS.find(p => p.id === currentPlan)!
-
-  function handleSelect(plan: Plan) {
-    if (plan === currentPlan) { showToast('Você já está neste plano!'); return }
-    if (plan === 'free') {
-      if (confirm('Fazer downgrade para Free? Você perderá acesso às funcionalidades Pro.')) {
-        setPlan('free'); showToast('Plano alterado para Free.')
+  async function handleSubscribe(planId: PlanId) {
+    const plan = PLANS.find(p => p.id === planId)
+    if (!plan || plan.monthly === 0) return
+    setLoading(planId)
+    try {
+      const res = await fetch('/api/payments/mercadopago', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          planId,
+          billing,
+          email: userProfile?.email,
+          name: userProfile?.name,
+        }),
+      })
+      const data = await res.json()
+      if (data.init_point) {
+        window.open(data.init_point, '_blank')
+      } else if (data.error) {
+        // Sem chave MP configurada — modo demo
+        setCheckout(planId)
       }
-      return
+    } catch {
+      setCheckout(planId)
+    } finally {
+      setLoading(null)
     }
-    setCheckout(plan)
   }
 
-  function activateDemo(plan: Plan) {
-    setPlan(plan)
-    setCheckout(null)
-    showToast(`🎉 Plano ${PLANS.find(p => p.id === plan)?.badge} ativado!`)
+  const price = (plan: typeof PLANS[0]) => {
+    if (plan.monthly === 0) return 'Gratis'
+    if (billing === 'annual') return 'R$ ' + (plan.annual / 12).toFixed(2).replace('.', ',') + '/mes'
+    return 'R$ ' + String(plan.monthly).replace('.', ',') + '/mes'
   }
-
-  function getPrice(plan: typeof PLANS[0]) {
-    if (plan.monthlyPrice === 0) return 'Grátis'
-    return annual
-      ? `R$ ${(plan.annualPrice / 12).toFixed(2)}`
-      : `R$ ${plan.monthlyPrice.toFixed(2)}`
-  }
-
-  const checkoutPlan = PLANS.find(p => p.id === checkout)
 
   return (
     <AppShell>
-      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px 48px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '32px 24px 48px' }}>
 
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ fontFamily: 'Syne', fontSize: 28, fontWeight: 800, marginBottom: 8 }}>
+        <div style={{ textAlign: 'center', marginBottom: 40 }}>
+          <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 'clamp(24px,4vw,36px)', marginBottom: 8 }}>
             Escolha seu plano
+          </h1>
+          <p style={{ color: 'var(--text3)', fontSize: 15, marginBottom: 24 }}>
+            Sem cartao de credito para comecar. Cancele quando quiser.
+          </p>
+          {/* Toggle mensal/anual */}
+          <div style={{ display: 'inline-flex', background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: 4, gap: 4 }}>
+            {(['monthly', 'annual'] as const).map(b => (
+              <button key={b} onClick={() => setBilling(b)} style={{
+                padding: '8px 20px', borderRadius: 8, border: 'none',
+                background: billing === b ? 'var(--accent)' : 'transparent',
+                color: billing === b ? '#fff' : 'var(--text2)',
+                fontWeight: 600, cursor: 'pointer', fontSize: 13, transition: 'all 0.2s',
+              }}>
+                {b === 'monthly' ? 'Mensal' : 'Anual'}{b === 'annual' ? ' (-30%)' : ''}
+              </button>
+            ))}
           </div>
-          <div style={{ fontSize: 14, color: 'var(--text2)' }}>
-            Comece grátis. Faça upgrade quando precisar.
-          </div>
-        </div>
-
-        {/* Banner plano atual */}
-        <div style={{
-          background: 'var(--bg2)',
-          border: `1px solid ${current.color === 'var(--text2)' ? 'var(--border)' : current.color + '30'}`,
-          borderRadius: 'var(--radius)', padding: '14px 20px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          marginBottom: 28,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ fontSize: 11, color: 'var(--text3)', fontWeight: 600, letterSpacing: 0.8 }}>PLANO ATUAL</div>
-            <div style={{ fontFamily: 'Syne', fontSize: 16, fontWeight: 700, color: current.color }}>{current.badge}</div>
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--text2)' }}>
-            {currentPlan === 'free' && '50 msgs/dia · 3 hábitos · sem WhatsApp'}
-            {currentPlan === 'pro' && '✅ IA ilimitada · Voz neural · WhatsApp'}
-            {currentPlan === 'business' && '✅ Todos os recursos · Multi-usuário · API'}
-          </div>
-        </div>
-
-        {/* Toggle anual */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginBottom: 28 }}>
-          <span style={{ fontSize: 14, color: annual ? 'var(--text2)' : 'var(--text)', fontWeight: annual ? 400 : 600 }}>Mensal</span>
-          <div
-            onClick={() => setAnnual(!annual)}
-            style={{
-              width: 46, height: 26, borderRadius: 99, cursor: 'pointer', position: 'relative',
-              background: annual ? 'var(--accent)' : 'var(--bg3)',
-              border: '1px solid var(--border2)', transition: 'background 0.2s',
-            }}
-          >
-            <div style={{
-              position: 'absolute', top: 3, left: annual ? 22 : 3,
-              width: 18, height: 18, borderRadius: '50%', background: '#fff',
-              transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-            }} />
-          </div>
-          <span style={{ fontSize: 14, color: annual ? 'var(--text)' : 'var(--text2)', fontWeight: annual ? 600 : 400 }}>
-            Anual{' '}
-            <span style={{
-              fontSize: 11, fontWeight: 700, background: 'rgba(34,211,160,0.15)',
-              color: 'var(--green)', border: '1px solid rgba(34,211,160,0.25)',
-              borderRadius: 99, padding: '2px 8px', marginLeft: 4,
-            }}>-33%</span>
-          </span>
         </div>
 
         {/* Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 40 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, maxWidth: 1000, margin: '0 auto' }}>
           {PLANS.map(plan => {
-            const isCurrentPlan = plan.id === currentPlan
+            const isCurrent = currentPlan === plan.id
             return (
               <div key={plan.id} style={{
-                background: 'var(--bg2)',
-                border: `1px solid ${plan.popular ? 'rgba(124,109,250,0.5)' : isCurrentPlan ? 'rgba(34,211,160,0.3)' : 'var(--border)'}`,
-                borderRadius: 'var(--radius)', padding: '24px 22px',
-                position: 'relative',
-                boxShadow: plan.popular ? '0 0 40px rgba(124,109,250,0.08)' : 'none',
+                background: plan.highlight ? 'linear-gradient(145deg,rgba(124,109,250,0.12),rgba(124,109,250,0.04))' : 'var(--bg2)',
+                border: plan.highlight ? '2px solid rgba(124,109,250,0.4)' : '1px solid var(--border)',
+                borderRadius: 16, padding: '28px 24px', position: 'relative',
               }}>
-                {plan.popular && (
-                  <div style={{
-                    position: 'absolute', top: -1, left: '50%', transform: 'translateX(-50%)',
-                    background: 'var(--accent)', color: '#fff', fontSize: 10, fontWeight: 700,
-                    padding: '3px 14px', borderRadius: '0 0 10px 10px', letterSpacing: 0.8,
-                  }}>MAIS POPULAR</div>
+                {plan.highlight && (
+                  <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg,#7c6dfa,#a78bfa)', borderRadius: 99, padding: '3px 14px', fontSize: 11, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>
+                    Mais popular
+                  </div>
                 )}
-                {isCurrentPlan && (
-                  <div style={{
-                    position: 'absolute', top: 14, right: 14,
-                    background: 'rgba(34,211,160,0.15)', color: 'var(--green)',
-                    border: '1px solid rgba(34,211,160,0.25)',
-                    fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
-                  }}>✓ ATUAL</div>
+                {isCurrent && (
+                  <div style={{ position: 'absolute', top: -12, right: 16, background: '#22d3a0', borderRadius: 99, padding: '3px 12px', fontSize: 11, fontWeight: 700, color: '#fff' }}>
+                    Plano atual
+                  </div>
                 )}
-
-                <div style={{ fontFamily: 'Syne', fontSize: 18, fontWeight: 800, color: plan.color, marginBottom: 6 }}>
-                  {plan.label}
+                <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, marginBottom: 4 }}>{plan.name}</h2>
+                <p style={{ color: 'var(--text3)', fontSize: 13, marginBottom: 20 }}>{plan.desc}</p>
+                <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 36, letterSpacing: -1, marginBottom: 4 }}>
+                  {plan.monthly === 0 ? 'Gratis' : price(plan)}
                 </div>
-
-                <div style={{ marginBottom: 20 }}>
-                  <span style={{ fontFamily: 'Syne', fontSize: 34, fontWeight: 900 }}>
-                    {getPrice(plan)}
-                  </span>
-                  {plan.monthlyPrice > 0 && (
-                    <span style={{ fontSize: 13, color: 'var(--text3)' }}>
-                      {annual ? '/mês (faturado anual)' : '/mês'}
-                    </span>
-                  )}
-                  {annual && plan.monthlyPrice > 0 && (
-                    <div style={{ fontSize: 12, color: 'var(--green)', marginTop: 4 }}>
-                      Total: R$ {plan.annualPrice}/ano (economize R$ {(plan.monthlyPrice * 12 - plan.annualPrice).toFixed(0)})
+                {billing === 'annual' && plan.annual > 0 && (
+                  <div style={{ fontSize: 12, color: '#22d3a0', marginBottom: 20 }}>R$ {plan.annual}/ano — 2 meses gratis</div>
+                )}
+                <div style={{ marginBottom: 24, marginTop: billing === 'annual' && plan.annual > 0 ? 0 : 20 }}>
+                  {plan.features.map((f, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10, fontSize: 14 }}>
+                      <span style={{ color: f.ok ? '#22d3a0' : 'var(--text3)', flexShrink: 0, fontWeight: 700 }}>
+                        {f.ok ? '✓' : '✗'}
+                      </span>
+                      <span style={{ color: f.ok ? 'var(--text)' : 'var(--text3)', textDecoration: f.ok ? 'none' : 'line-through' }}>
+                        {f.text}
+                      </span>
                     </div>
-                  )}
+                  ))}
                 </div>
-
-                <div style={{ marginBottom: 22 }}>
-                  {plan.features.map((f, i) => <FeatureRow key={i} {...f} />)}
-                </div>
-
                 <button
-                  onClick={() => handleSelect(plan.id)}
+                  onClick={() => plan.monthly === 0 ? null : handleSubscribe(plan.id)}
+                  disabled={isCurrent || plan.monthly === 0 || loading === plan.id}
                   style={{
-                    width: '100%', padding: '13px 0', borderRadius: 10, fontSize: 14,
-                    fontWeight: 700, cursor: isCurrentPlan ? 'default' : 'pointer',
-                    border: 'none', transition: 'all 0.2s',
-                    background: isCurrentPlan
-                      ? 'var(--bg3)'
-                      : plan.id === 'pro'
-                      ? 'var(--accent)'
-                      : plan.id === 'business'
-                      ? 'linear-gradient(135deg,#f59e0b,#d97706)'
-                      : 'var(--bg3)',
-                    color: isCurrentPlan ? 'var(--text3)' : plan.id === 'free' ? 'var(--text2)' : '#fff',
+                    width: '100%', padding: '13px 0', borderRadius: 10, border: 'none',
+                    background: isCurrent ? 'rgba(34,211,160,0.15)' : plan.highlight ? 'linear-gradient(135deg,#7c6dfa,#a78bfa)' : 'var(--bg3)',
+                    color: isCurrent ? '#22d3a0' : plan.monthly === 0 ? 'var(--text2)' : '#fff',
+                    fontFamily: 'Syne', fontWeight: 700, fontSize: 15,
+                    cursor: isCurrent || plan.monthly === 0 ? 'default' : 'pointer',
+                    opacity: loading === plan.id ? 0.7 : 1,
+                    transition: 'all 0.2s',
                   }}
                 >
-                  {isCurrentPlan ? '✓ Plano atual' : plan.cta}
+                  {loading === plan.id ? 'Aguarde...' : isCurrent ? 'Plano atual' : plan.cta}
                 </button>
               </div>
             )
           })}
         </div>
 
-        {/* Garantia */}
-        <div style={{
-          textAlign: 'center', padding: '28px 24px',
-          background: 'linear-gradient(135deg,rgba(34,211,160,0.07),rgba(34,211,160,0.02))',
-          border: '1px solid rgba(34,211,160,0.15)', borderRadius: 'var(--radius)', marginBottom: 36,
-        }}>
-          <div style={{ fontSize: 36, marginBottom: 8 }}>🛡️</div>
-          <div style={{ fontFamily: 'Syne', fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Garantia de 14 dias sem risco</div>
-          <div style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.7, maxWidth: 400, margin: '0 auto' }}>
-            Experimente qualquer plano por 14 dias. Se não ficar satisfeito por qualquer motivo, devolvemos 100% do valor — sem burocracia e sem perguntas.
-          </div>
-        </div>
-
-        {/* FAQ */}
-        <div style={{ maxWidth: 640, margin: '0 auto' }}>
-          <div style={{ fontFamily: 'Syne', fontSize: 18, fontWeight: 700, textAlign: 'center', marginBottom: 20 }}>
-            Perguntas frequentes
-          </div>
-          {FAQS.map((faq, i) => (
-            <div key={i} style={{
-              borderBottom: '1px solid var(--border)', overflow: 'hidden',
+        {/* Modal de checkout - aparece quando MP nao esta configurado */}
+        {checkout && (
+          <div style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20,
+          }} onClick={() => setCheckout(null)}>
+            <div onClick={e => e.stopPropagation()} style={{
+              background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 20, padding: '40px 32px',
+              maxWidth: 420, width: '100%', textAlign: 'center',
             }}>
-              <button
-                onClick={() => setFaqOpen(faqOpen === i ? null : i)}
-                style={{
-                  width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: '16px 0', background: 'transparent', border: 'none',
-                  cursor: 'pointer', textAlign: 'left',
-                }}
-              >
-                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{faq.q}</span>
-                <span style={{
-                  fontSize: 18, color: 'var(--text3)', flexShrink: 0, marginLeft: 12,
-                  transform: faqOpen === i ? 'rotate(45deg)' : 'none', transition: 'transform 0.2s',
-                }}>+</span>
-              </button>
-              {faqOpen === i && (
-                <div style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.7, paddingBottom: 16 }}>
-                  {faq.a}
-                </div>
-              )}
+              <div style={{ fontSize: 40, marginBottom: 16 }}>💳</div>
+              <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, marginBottom: 8 }}>
+                {PLANS.find(p => p.id === checkout)?.name}
+              </h2>
+              <p style={{ color: 'var(--text3)', fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>
+                Para ativar pagamentos reais, configure sua chave do Mercado Pago no painel do Vercel:<br />
+                <code style={{ background: 'var(--bg3)', padding: '2px 8px', borderRadius: 4, fontSize: 12 }}>MP_ACCESS_TOKEN</code>
+              </p>
+              <div style={{ background: 'rgba(0,158,227,0.1)', border: '1px solid rgba(0,158,227,0.3)', borderRadius: 10, padding: '12px 16px', marginBottom: 24, fontSize: 13, color: '#009ee3' }}>
+                Plano ativado em modo demo por enquanto.
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={() => setCheckout(null)} style={{ flex: 1, padding: '12px', borderRadius: 10, border: '1px solid var(--border)', background: 'var(--bg3)', color: 'var(--text2)', fontWeight: 600, cursor: 'pointer' }}>
+                  Cancelar
+                </button>
+                <button onClick={() => {
+                  setCheckout(null)
+                }} style={{ flex: 1, padding: '12px', borderRadius: 10, border: 'none', background: '#009ee3', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>
+                  Entendido
+                </button>
+              </div>
             </div>
-          ))}
+          </div>
+        )}
+
+        {/* Garantia */}
+        <div style={{ textAlign: 'center', marginTop: 40, color: 'var(--text3)', fontSize: 13 }}>
+          🛡️ Garantia de 14 dias — nao gostou? Devolvemos 100%.
         </div>
       </div>
-
-      {/* Modal checkout */}
-      {checkout && checkoutPlan && (
-        <div
-          onClick={e => e.target === e.currentTarget && setCheckout(null)}
-          style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)',
-            backdropFilter: 'blur(4px)', zIndex: 200,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
-          }}
-        >
-          <div style={{
-            background: 'var(--bg2)', border: '1px solid var(--border2)',
-            borderRadius: 'var(--radius)', padding: '32px 28px', width: '100%', maxWidth: 420,
-          }}>
-            <div style={{ textAlign: 'center', marginBottom: 24 }}>
-              <div style={{ fontSize: 40, marginBottom: 8 }}>{checkout === 'pro' ? '⭐' : '🚀'}</div>
-              <div style={{ fontFamily: 'Syne', fontSize: 22, fontWeight: 800, marginBottom: 4 }}>
-                Plano {checkoutPlan.label}
-              </div>
-              <div style={{ fontFamily: 'Syne', fontSize: 28, fontWeight: 800, color: checkoutPlan.color }}>
-                {annual
-                  ? `R$ ${checkoutPlan.annualPrice}/ano`
-                  : `R$ ${checkoutPlan.monthlyPrice.toFixed(2)}/mês`}
-              </div>
-              {annual && (
-                <div style={{ fontSize: 13, color: 'var(--green)', marginTop: 4 }}>
-                  Equivale a R$ {(checkoutPlan.annualPrice / 12).toFixed(2)}/mês
-                </div>
-              )}
-            </div>
-
-            <div style={{
-              background: 'rgba(34,211,160,0.07)', border: '1px solid rgba(34,211,160,0.2)',
-              borderRadius: 10, padding: '12px 16px', marginBottom: 20,
-              fontSize: 13, color: 'var(--text2)', lineHeight: 1.6,
-            }}>
-              🛡️ <b style={{ color: 'var(--text)' }}>Garantia de 14 dias</b> — não gostou? Devolvemos 100%.
-            </div>
-
-            {/* Botões de pagamento */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
-              <button
-                onClick={() => activateDemo(checkout)}
-                style={{
-                  padding: '13px 0', borderRadius: 10, border: 'none',
-                  background: 'var(--accent)', color: '#fff', fontSize: 14,
-                  fontWeight: 700, cursor: 'pointer',
-                }}
-              >
-                💳 Pagar com cartão (Stripe)
-              </button>
-              <button
-                onClick={() => activateDemo(checkout)}
-                style={{
-                  padding: '13px 0', borderRadius: 10, border: 'none',
-                  background: '#009ee3', color: '#fff', fontSize: 14,
-                  fontWeight: 700, cursor: 'pointer',
-                }}
-              >
-                💙 Pagar com Mercado Pago
-              </button>
-              <button
-                onClick={() => activateDemo(checkout)}
-                style={{
-                  padding: '13px 0', borderRadius: 10, border: 'none',
-                  background: 'linear-gradient(135deg,#32bcad,#1a9488)', color: '#fff', fontSize: 14,
-                  fontWeight: 700, cursor: 'pointer',
-                }}
-              >
-                📱 Pagar com PIX
-              </button>
-            </div>
-
-            <div style={{
-              fontSize: 11, color: 'var(--text3)', textAlign: 'center', lineHeight: 1.5, marginBottom: 16,
-            }}>
-              Configure <code>STRIPE_KEY</code> ou <code>MP_PUBLIC_KEY</code> no Vercel para ativar pagamentos reais.
-              No momento, o botão ativa o plano em modo demo.
-            </div>
-
-            <button
-              onClick={() => setCheckout(null)}
-              style={{
-                width: '100%', padding: '10px 0', borderRadius: 10,
-                background: 'transparent', border: '1px solid var(--border)',
-                color: 'var(--text2)', fontSize: 13, cursor: 'pointer',
-              }}
-            >
-              Cancelar
-            </button>
-          </div>
-        </div>
-      )}
     </AppShell>
   )
 }
